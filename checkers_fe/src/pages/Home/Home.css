@@ -1,0 +1,29 @@
+.home {
+  padding-top: 20vh;
+}
+.home__heading {
+  text-align: center;
+  color: #fff;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+.home__heading::first-letter {
+  color: red;
+}
+.home__heading span {
+  color: yellow;
+}
+.btn--home {
+  width: 100%;
+  margin: 10px 0px;
+  border: none;
+  text-transform: uppercase;
+}
+.btn--home:first-of-type {
+  background-color: red;
+  color: #fff;
+}
+.btn--home:last-of-type {
+  background-color: yellow;
+  color: #000;
+}
