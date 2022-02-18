@@ -1,0 +1,11 @@
+.board-cont {
+  border: 5px solid blue;
+  margin-top: 25vh;
+  border-radius: 5px;
+}
+.board {
+  position: relative;
+  background-color: yellow;
+  display: flex;
+  flex-wrap: wrap;
+}

@@ -10,20 +10,20 @@ const PieceChoice = () => {
       <h2 className="piecechoice__heading">Pick Player 1's Piece Color</h2>
       <div className="piecechoice__form">
         <div
-          onClick={() => setPlayerOnePiece("red")}
+          onClick={() => setPlayerOnePiece("green")}
           className={`piecechoice__box ${
-            playerOnePiece === "red" && "clickedPiece"
+            playerOnePiece === "green" && "clickedPiece"
           }`}
         >
-          <Piece bgColor={"red"} />
+          <Piece bgColor={"green"} />
         </div>
         <div
-          onClick={() => setPlayerOnePiece("yellow")}
+          onClick={() => setPlayerOnePiece("white")}
           className={`piecechoice__box ${
-            playerOnePiece === "yellow" && "clickedPiece"
+            playerOnePiece === "white" && "clickedPiece"
           }`}
         >
-          <Piece bgColor={"yellow"} />
+          <Piece bgColor={"white"} />
         </div>
       </div>
     </section>
