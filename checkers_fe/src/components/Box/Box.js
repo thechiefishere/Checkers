@@ -3,7 +3,6 @@ import "./Box.css";
 import { useSelector } from "react-redux";
 
 const Box = ({ bgColor }) => {
-  //   const { leftDimension: left, topDimension: top } = dimension;
   const boardWidth = useSelector((state) => state.boardWidth);
   const boxWidth = boardWidth / 10;
 
@@ -12,6 +11,7 @@ const Box = ({ bgColor }) => {
       className="box"
       style={{
         width: boxWidth,
+        height: boxWidth,
         backgroundColor: bgColor,
       }}
     ></div>
