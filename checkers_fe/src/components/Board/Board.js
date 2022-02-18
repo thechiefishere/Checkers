@@ -19,23 +19,12 @@ const Board = () => {
     <section className="board-cont">
       <section ref={boardRef} className="board">
         {Array.from({ length: totalNumberOfBoxes }).map((val, index) => {
-          const leftDimension = index % 10;
-          const topDimension = parseInt(index / 10);
-          let bgColor = getColorFromDimensions(leftDimension, topDimension);
+          let bgColor = getColorFromDimensions(index);
           return (
             <div key={index}>
-              <Box bgColor={bgColor} />
-              {index < 40 && bgColor != "yellow" && (
-                <Piece
-                  bgColor={"white"}
-                  dimension={{ leftDimension, topDimension }}
-                />
-              )}
-              {index > 59 && bgColor != "yellow" && (
-                <Piece
-                  bgColor={"green"}
-                  dimension={{ leftDimension, topDimension }}
-                />
+              <Box index={index} />
+              {(index < 40 || index > 59) && bgColor != "yellow" && (
+                <Piece index={index} />
               )}
             </div>
           );
