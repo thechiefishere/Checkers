@@ -8,13 +8,15 @@
 .piecechoice__form {
   display: flex;
   justify-content: space-between;
-  width: 30%;
+  width: 45%;
+  height: 6vh;
   margin: 0px auto;
   margin-top: 15px;
 }
 .piecechoice__box {
   position: relative;
   padding: 8px;
+  width: 46%;
 }
 .piecechoice .clickedPiece {
   background-color: blue;

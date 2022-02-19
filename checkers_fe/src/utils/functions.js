@@ -9,9 +9,9 @@ export const getTopDimension = (index) => {
 export const getColorFromDimensions = (index) => {
   const leftDimension = getLeftDimension(index);
   const topDimension = getTopDimension(index);
-  if (topDimension === leftDimension) return "red";
-  if (topDimension % 2 === 0 && leftDimension % 2 === 0) return "black";
-  else if (topDimension % 2 === 0 && leftDimension % 2 != 0) return "yellow";
-  else if (topDimension % 2 != 0 && leftDimension % 2 === 0) return "yellow";
-  else if (topDimension % 2 != 0 && leftDimension % 2 != 0) return "black";
+  if (topDimension === leftDimension) return "RED";
+  if (topDimension % 2 === 0 && leftDimension % 2 === 0) return "BLACK";
+  else if (topDimension % 2 === 0 && leftDimension % 2 !== 0) return "YELLOW";
+  else if (topDimension % 2 !== 0 && leftDimension % 2 === 0) return "YELLOW";
+  else if (topDimension % 2 !== 0 && leftDimension % 2 !== 0) return "BLACK";
 };
