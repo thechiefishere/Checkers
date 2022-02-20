@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./PieceChoice.css";
 import Piece from "../Piece/Piece";
 import { useDispatch } from "react-redux";
-import { switchTurn, updatePlayersDetails } from "../../store/actions";
+import { setTurn, updatePlayersDetails } from "../../store/actions";
 
 const PieceChoice = () => {
   const [playerOnePiece, setPlayerOnePiece] = useState();
@@ -15,7 +15,7 @@ const PieceChoice = () => {
         <div
           onClick={() => {
             setPlayerOnePiece("WHITE");
-            dispatch(switchTurn("WHITE"));
+            dispatch(setTurn("WHITE"));
             dispatch(
               updatePlayersDetails({
                 player1Color: "WHITE",
@@ -31,7 +31,7 @@ const PieceChoice = () => {
         <div
           onClick={() => {
             setPlayerOnePiece("GREEN");
-            dispatch(switchTurn("GREEN"));
+            dispatch(setTurn("GREEN"));
             dispatch(
               updatePlayersDetails({
                 player1Color: "GREEN",

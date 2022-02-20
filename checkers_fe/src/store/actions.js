@@ -26,10 +26,16 @@ export const updatePlayersDetails = (detail) => {
   };
 };
 
-export const switchTurn = (turn) => {
+export const setTurn = (turn) => {
+  return {
+    type: "SET_TURN",
+    payload: turn,
+  };
+};
+
+export const switchTurn = () => {
   return {
     type: "SWITCH_TURN",
-    payload: turn,
   };
 };
 

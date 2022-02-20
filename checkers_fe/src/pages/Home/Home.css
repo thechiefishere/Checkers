@@ -1,18 +1,6 @@
 .home {
   padding-top: 20vh;
 }
-.home__heading {
-  text-align: center;
-  color: #fff;
-  margin-bottom: 20px;
-  text-transform: uppercase;
-}
-.home__heading::first-letter {
-  color: red;
-}
-.home__heading span {
-  color: yellow;
-}
 .btn--home {
   width: 100%;
   margin: 10px 0px;

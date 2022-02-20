@@ -11,6 +11,7 @@ import {
   addBox,
   setClickedBox,
   setClickedPiece,
+  switchTurn,
   updateBox,
   updatePieceIndex,
 } from "../../store/actions";
@@ -60,6 +61,7 @@ const Box = ({ index }) => {
     dispatch(updatePieceIndex(clickedPiece));
     dispatch(updateBox(fromBox));
     dispatch(updateBox(box));
+    dispatch(switchTurn());
   };
 
   return (

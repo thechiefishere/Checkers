@@ -47,11 +47,20 @@ export const reducer = (state = initialState, action) => {
         playersDetails: details,
       };
     }
-    case "SWITCH_TURN": {
+    case "SET_TURN": {
       localStorage.setItem("turn", action.payload);
       return {
         ...state,
         turn: action.payload,
+      };
+    }
+    case "SWITCH_TURN": {
+      const presentTurn = localStorage.getItem("turn");
+      const nextTurn = presentTurn === "WHITE" ? "GREEN" : "WHITE";
+      localStorage.setItem("turn", nextTurn);
+      return {
+        ...state,
+        turn: nextTurn,
       };
     }
     case "SET_CLICKED_PIECE": {

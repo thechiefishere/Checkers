@@ -4,6 +4,7 @@ import PieceChoice from "../../components/PieceChoice/PieceChoice";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { updatePlayersDetails } from "../../store/actions";
+import Logo from "../../components/Logo/Logo";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -11,9 +12,7 @@ const Home = () => {
 
   return (
     <main className="home">
-      <h1 className="home__heading">
-        Checker<span>s</span>
-      </h1>
+      <Logo />
       <PieceChoice />
       <button
         onClick={() => {
@@ -27,7 +26,7 @@ const Home = () => {
       <button
         onClick={() => {
           dispatch(updatePlayersDetails({ player2: "HUMAN" }));
-          // navigate("/game");
+          navigate("/game");
         }}
         className="btn btn--home"
       >

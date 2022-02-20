@@ -1,0 +1,12 @@
+.logo {
+  text-align: center;
+  color: #fff;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+.logo::first-letter {
+  color: red;
+}
+.logo span {
+  color: yellow;
+}
