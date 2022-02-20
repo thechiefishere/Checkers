@@ -27,7 +27,7 @@ const Board = () => {
             <div key={index}>
               <Box index={index} />
               {(index < 40 || index > 59) && bgColor !== "YELLOW" && (
-                <Piece index={index} pieceValue={index} />
+                <Piece index={index} pieceNumber={index} />
               )}
             </div>
           );

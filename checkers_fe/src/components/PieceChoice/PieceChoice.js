@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./PieceChoice.css";
 import Piece from "../Piece/Piece";
 import { useDispatch } from "react-redux";
-import { updatePlayersDetails } from "../../store/actions";
+import { switchTurn, updatePlayersDetails } from "../../store/actions";
 
 const PieceChoice = () => {
   const [playerOnePiece, setPlayerOnePiece] = useState();
@@ -15,6 +15,7 @@ const PieceChoice = () => {
         <div
           onClick={() => {
             setPlayerOnePiece("WHITE");
+            dispatch(switchTurn("WHITE"));
             dispatch(
               updatePlayersDetails({
                 player1Color: "WHITE",
@@ -25,12 +26,12 @@ const PieceChoice = () => {
           className={`piecechoice__box ${
             playerOnePiece === "WHITE" && "clickedPiece"
           }`}
-        >
-          <Piece pieceValue={1} />
-        </div>
+          style={{ backgroundColor: "WHITE" }}
+        ></div>
         <div
           onClick={() => {
             setPlayerOnePiece("GREEN");
+            dispatch(switchTurn("GREEN"));
             dispatch(
               updatePlayersDetails({
                 player1Color: "GREEN",
@@ -41,9 +42,8 @@ const PieceChoice = () => {
           className={`piecechoice__box ${
             playerOnePiece === "GREEN" && "clickedPiece"
           }`}
-        >
-          <Piece pieceValue={60} />
-        </div>
+          style={{ backgroundColor: "GREEN" }}
+        ></div>
       </div>
     </section>
   );
