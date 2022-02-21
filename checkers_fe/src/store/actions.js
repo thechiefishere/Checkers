@@ -53,16 +53,16 @@ export const setClickedBox = (boxNumber) => {
   };
 };
 
-export const updatePieceIndex = (clickedPiece) => {
+export const updatePiece = (clickedPiece) => {
   return {
-    type: "UPDATE_PIECE_INDEX",
+    type: "UPDATE_PIECE",
     payload: clickedPiece,
   };
 };
 
 export const updateBox = (box) => {
   return {
-    type: "UPDATE_PIECE_INDEX",
+    type: "UPDATE_BOX",
     payload: box,
   };
 };

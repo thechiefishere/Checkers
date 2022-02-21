@@ -55,7 +55,7 @@ export const reducer = (state = initialState, action) => {
       };
     }
     case "SWITCH_TURN": {
-      const presentTurn = localStorage.getItem("turn");
+      const presentTurn = localStorage.getItem("turn") || state.turn;
       const nextTurn = presentTurn === "WHITE" ? "GREEN" : "WHITE";
       localStorage.setItem("turn", nextTurn);
       return {
@@ -75,7 +75,7 @@ export const reducer = (state = initialState, action) => {
         clickedBox: action.payload,
       };
     }
-    case "UPDATE_PIECE_INDEX": {
+    case "UPDATE_PIECE": {
       const updatedPieces = state.allPiece.map((piece) => {
         if (piece.pieceNumber === action.payload.pieceNumber)
           return action.payload;

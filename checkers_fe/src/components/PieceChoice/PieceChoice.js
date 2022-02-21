@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import "./PieceChoice.css";
-import Piece from "../Piece/Piece";
 import { useDispatch } from "react-redux";
 import { setTurn, updatePlayersDetails } from "../../store/actions";
 

@@ -7,7 +7,7 @@ import {
   getTopDimension,
   validateClick,
 } from "../../utils/functions";
-import { addPiece, setClickedPiece } from "../../store/actions";
+import { addPiece, setClickedPiece, updateBox } from "../../store/actions";
 
 const Piece = ({ index, pieceNumber }) => {
   const [pieceType, setPieceType] = useState("Regular");

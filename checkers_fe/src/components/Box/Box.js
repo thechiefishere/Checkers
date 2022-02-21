@@ -5,6 +5,7 @@ import {
   getBoxByNumber,
   getColorFromDimensions,
   getLeftDimension,
+  getPieceByNumber,
   getTopDimension,
 } from "../../utils/functions";
 import {
@@ -13,7 +14,7 @@ import {
   setClickedPiece,
   switchTurn,
   updateBox,
-  updatePieceIndex,
+  updatePiece,
 } from "../../store/actions";
 import { isValidRegularMove } from "../../utils/moveFunctions";
 
@@ -22,6 +23,7 @@ const Box = ({ index }) => {
   const boardWidth = useSelector((state) => state.boardWidth);
   const clickedPiece = useSelector((state) => state.clickedPiece);
   const allBoxes = useSelector((state) => state.allBoxes);
+  const allPiece = useSelector((state) => state.allPiece);
   const dispatch = useDispatch();
   const boxWidth = boardWidth / 10;
   const boxNumber = index;
@@ -37,6 +39,15 @@ const Box = ({ index }) => {
     dispatch(addBox(box));
   }, []);
 
+  useEffect(() => {
+    if (allPiece.length !== 40) return;
+    const piece = getPieceByNumber(index, allPiece);
+    const box = getBoxByNumber(index, allBoxes);
+    if (!box || !piece) return;
+    box.piece = piece;
+    dispatch(updateBox(box));
+  }, [allPiece]);
+
   const handleBoxClick = () => {
     if (clickedPiece === null || boxColor === "YELLOW") return;
     const box = getBoxByNumber(index, allBoxes);
@@ -48,17 +59,25 @@ const Box = ({ index }) => {
       clickedPiece.pieceDirection
     );
     if (validRegularMove) {
+      console.log("i enterred if");
       makeMove(clickedPiece, fromBox, box);
       dispatch(setClickedPiece(null));
       dispatch(setClickedBox(null));
     }
+    // const validKillMove = isValidKillMove(
+    //   fromBox,
+    //   box,
+    //   clickedPiece.pieceDirection
+    // );
   };
 
   const makeMove = (clickedPiece, fromBox, box) => {
-    clickedPiece.index = box.boxNumber;
     fromBox.isFilled = false;
+    fromBox.piece = null;
     box.isFilled = true;
-    dispatch(updatePieceIndex(clickedPiece));
+    box.piece = clickedPiece;
+    clickedPiece.index = box.boxNumber;
+    dispatch(updatePiece(clickedPiece));
     dispatch(updateBox(fromBox));
     dispatch(updateBox(box));
     dispatch(switchTurn());

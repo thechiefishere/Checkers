@@ -33,3 +33,5 @@ export const isValidRegularMove = (fromBox, toBox, direction) => {
   if (moveExist) return true;
   return false;
 };
+
+export const isValidKillMove = (fromBox, toBox, direction) => {};
