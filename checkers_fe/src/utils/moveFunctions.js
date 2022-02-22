@@ -1,37 +1,31 @@
-export const arrayOfPossibleMoves = (fromBoxNumber, direction) => {
-  const possibleMovesArray = [];
-  if (
-    fromBoxNumber % 10 !== 0 &&
-    fromBoxNumber % 10 !== 9 &&
-    direction === "DOWN"
-  ) {
-    possibleMovesArray.push(fromBoxNumber + 9);
-    possibleMovesArray.push(fromBoxNumber + 11);
-  } else if (
-    fromBoxNumber % 10 !== 0 &&
-    fromBoxNumber % 10 !== 9 &&
-    direction === "UP"
-  ) {
-    possibleMovesArray.push(fromBoxNumber - 9);
-    possibleMovesArray.push(fromBoxNumber - 11);
-  } else if (fromBoxNumber % 10 === 0 && direction === "DOWN")
-    possibleMovesArray.push(fromBoxNumber + 11);
-  else if (fromBoxNumber % 10 === 0 && direction === "UP")
-    possibleMovesArray.push(fromBoxNumber - 9);
-  else if (fromBoxNumber % 10 === 9 && direction === "DOWN")
-    possibleMovesArray.push(fromBoxNumber + 9);
-  else if (fromBoxNumber % 10 === 9 && direction === "UP")
-    possibleMovesArray.push(fromBoxNumber - 11);
+const checkRegularMoveDown = (toBoxNumber, fromBoxNumber) => {
+  let boxDifference = toBoxNumber - fromBoxNumber;
+  if (boxDifference < 0) return false;
+  if (fromBoxNumber % 10 === 0 && boxDifference === 11) return true;
+  if (fromBoxNumber % 10 === 9 && boxDifference === 9) return true;
+  else if (boxDifference === 9 || boxDifference === 11) return true;
+  return false;
+};
 
-  return possibleMovesArray;
+const checkRegularMoveUp = (toBoxNumber, fromBoxNumber) => {
+  let boxDifference = fromBoxNumber - toBoxNumber;
+  if (boxDifference < 0) return false;
+  if (fromBoxNumber % 10 === 0 && boxDifference === 9) return true;
+  if (fromBoxNumber % 10 === 9 && boxDifference === 11) return true;
+  else if (boxDifference === 9 || boxDifference === 11) return true;
+  return false;
 };
 
 export const isValidRegularMove = (fromBox, toBox, direction) => {
   if (toBox.isFilled) return false;
-  const validMovesFromBox = arrayOfPossibleMoves(fromBox.boxNumber, direction);
-  const moveExist = validMovesFromBox.find((move) => move === toBox.boxNumber);
-  if (moveExist) return true;
-  return false;
+  let validMove = false;
+  if (direction === "DOWN")
+    validMove = checkRegularMoveDown(toBox.boxNumber, fromBox.boxNumber);
+  else if (direction === "UP")
+    validMove = checkRegularMoveUp(toBox.boxNumber, fromBox.boxNumber);
+  return validMove;
 };
 
-export const isValidKillMove = (fromBox, toBox, direction) => {};
+export const isValidRegularKillMove = (fromBox, toBox, direction) => {
+  if (toBox.isFilled) return false;
+};

@@ -59,7 +59,6 @@ const Box = ({ index }) => {
       clickedPiece.pieceDirection
     );
     if (validRegularMove) {
-      console.log("i enterred if");
       makeMove(clickedPiece, fromBox, box);
       dispatch(setClickedPiece(null));
       dispatch(setClickedBox(null));
