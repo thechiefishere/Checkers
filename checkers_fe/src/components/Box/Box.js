@@ -16,7 +16,11 @@ import {
   updateBox,
   updatePiece,
 } from "../../store/actions";
-import { isRegularMove, isRegularKillMove } from "../../utils/moveFunctions";
+import {
+  isRegularMove,
+  isRegularKillMove,
+  isKingMove,
+} from "../../utils/moveFunctions";
 
 const Box = ({ index }) => {
   const [boxColor, setBoxColor] = useState();
@@ -58,7 +62,14 @@ const Box = ({ index }) => {
     if (clickedPiece.pieceType === "REGULAR") {
       handleRegularMove(fromBox, box, clickedPiece.pieceDirection);
       handleRegularKillMove(fromBox, box);
+    } else {
+      handleKingMove(fromBox, box, allBoxes);
     }
+  };
+
+  const handleKingMove = (fromBox, box, allBoxes) => {
+    const validKingMove = isKingMove(fromBox, box, allBoxes);
+    if (validKingMove) makeMove(clickedPiece, fromBox, null, box);
   };
 
   const handleRegularMove = (fromBox, box, direction) => {
