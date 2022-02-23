@@ -16,7 +16,7 @@ const checkRegularMoveUp = (toBoxNumber, fromBoxNumber) => {
   return false;
 };
 
-export const isValidRegularMove = (fromBox, toBox, direction) => {
+export const isRegularMove = (fromBox, toBox, direction) => {
   if (toBox.isFilled) return false;
   let validMove = false;
   if (direction === "DOWN")
@@ -26,6 +26,22 @@ export const isValidRegularMove = (fromBox, toBox, direction) => {
   return validMove;
 };
 
-export const isValidRegularKillMove = (fromBox, toBox, direction) => {
+const isSamePiece = (fromBox, middleBox) => {
+  console.log("fromBox in samePiece", fromBox);
+  console.log("middleBox in samePiece", middleBox);
+  const pieceOne = fromBox.piece;
+  const pieceTwo = middleBox.piece;
+  if (pieceOne.pieceColor === pieceTwo.pieceColor) return true;
+  return false;
+};
+
+export const isRegularKillMove = (fromBox, middleBox, toBox) => {
+  // console.log("1");
   if (toBox.isFilled) return false;
+  // console.log("2");
+  if (!middleBox.isFilled) return false;
+  // console.log("3");
+  if (isSamePiece(fromBox, middleBox)) return false;
+  // console.log("4");
+  return true;
 };

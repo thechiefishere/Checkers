@@ -12,7 +12,6 @@ const Board = () => {
   const totalNumberOfBoxes = 100;
 
   const playersDetails = useSelector((state) => state.playersDetails);
-  console.log("playersDetails", playersDetails);
 
   useEffect(() => {
     dispatch(setBoardWidth(boardRef.current.getBoundingClientRect().width));

@@ -65,21 +65,25 @@ const Piece = ({ index, pieceNumber }) => {
   };
 
   return (
-    <div
-      onClick={handlePieceClick}
-      className={`piece ${
-        clickedPiece !== null &&
-        clickedPiece.pieceNumber === pieceNumber &&
-        "piece--clicked"
-      }`}
-      style={{
-        backgroundColor: `${pieceColor}`,
-        width: PieceWidth - 10,
-        height: PieceWidth - 10,
-        top: topDimension * PieceWidth,
-        left: leftDimension * PieceWidth,
-      }}
-    ></div>
+    <div>
+      {isAlive && (
+        <div
+          onClick={handlePieceClick}
+          className={`piece ${
+            clickedPiece !== null &&
+            clickedPiece.pieceNumber === pieceNumber &&
+            "piece--clicked"
+          }`}
+          style={{
+            backgroundColor: `${pieceColor}`,
+            width: PieceWidth - 10,
+            height: PieceWidth - 10,
+            top: topDimension * PieceWidth,
+            left: leftDimension * PieceWidth,
+          }}
+        ></div>
+      )}
+    </div>
   );
 };
 

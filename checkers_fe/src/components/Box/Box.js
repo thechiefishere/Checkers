@@ -16,10 +16,11 @@ import {
   updateBox,
   updatePiece,
 } from "../../store/actions";
-import { isValidRegularMove } from "../../utils/moveFunctions";
+import { isRegularMove, isRegularKillMove } from "../../utils/moveFunctions";
 
 const Box = ({ index }) => {
   const [boxColor, setBoxColor] = useState();
+  const [pieceSet, setPieceSet] = useState(false);
   const boardWidth = useSelector((state) => state.boardWidth);
   const clickedPiece = useSelector((state) => state.clickedPiece);
   const allBoxes = useSelector((state) => state.allBoxes);
@@ -40,12 +41,13 @@ const Box = ({ index }) => {
   }, []);
 
   useEffect(() => {
-    if (allPiece.length !== 40) return;
+    if (allPiece.length !== 40 || pieceSet) return;
     const piece = getPieceByNumber(index, allPiece);
     const box = getBoxByNumber(index, allBoxes);
     if (!box || !piece) return;
     box.piece = piece;
     dispatch(updateBox(box));
+    setPieceSet(true);
   }, [allPiece]);
 
   const handleBoxClick = () => {
@@ -53,29 +55,47 @@ const Box = ({ index }) => {
     const box = getBoxByNumber(index, allBoxes);
     const fromBox = getBoxByNumber(clickedPiece.index, allBoxes);
     dispatch(setClickedBox(box));
-    const validRegularMove = isValidRegularMove(
+    const validRegularMove = isRegularMove(
       fromBox,
       box,
       clickedPiece.pieceDirection
     );
     if (validRegularMove) {
-      makeMove(clickedPiece, fromBox, box);
+      makeMove(clickedPiece, fromBox, null, box);
       dispatch(setClickedPiece(null));
       dispatch(setClickedBox(null));
+      return;
     }
-    // const validKillMove = isValidKillMove(
-    //   fromBox,
-    //   box,
-    //   clickedPiece.pieceDirection
-    // );
+    const middleBoxAddOn = Math.abs(fromBox.boxNumber - box.boxNumber) / 2;
+    const middleBoxIndex =
+      box.boxNumber > fromBox.boxNumber
+        ? fromBox.boxNumber + middleBoxAddOn
+        : fromBox.boxNumber - middleBoxAddOn;
+    if (middleBoxAddOn === 9 || middleBoxAddOn === 11) {
+      const middleBox = getBoxByNumber(middleBoxIndex, allBoxes);
+      const validKillMove = isRegularKillMove(fromBox, middleBox, box);
+      if (validKillMove) {
+        makeMove(clickedPiece, fromBox, middleBox, box);
+        dispatch(setClickedPiece(null));
+        dispatch(setClickedBox(null));
+      }
+    }
   };
 
-  const makeMove = (clickedPiece, fromBox, box) => {
+  const makeMove = (clickedPiece, fromBox, middleBox = null, box) => {
     fromBox.isFilled = false;
     fromBox.piece = null;
     box.isFilled = true;
     box.piece = clickedPiece;
     clickedPiece.index = box.boxNumber;
+    if (middleBox !== null) {
+      const pieceInMiddleBox = middleBox.piece;
+      pieceInMiddleBox.isAlive = false;
+      middleBox.isFilled = false;
+      middleBox.piece = null;
+      dispatch(updatePiece(pieceInMiddleBox));
+      dispatch(updateBox(middleBox));
+    }
     dispatch(updatePiece(clickedPiece));
     dispatch(updateBox(fromBox));
     dispatch(updateBox(box));
