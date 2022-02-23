@@ -55,17 +55,18 @@ const Box = ({ index }) => {
     const box = getBoxByNumber(index, allBoxes);
     const fromBox = getBoxByNumber(clickedPiece.index, allBoxes);
     dispatch(setClickedBox(box));
-    const validRegularMove = isRegularMove(
-      fromBox,
-      box,
-      clickedPiece.pieceDirection
-    );
-    if (validRegularMove) {
-      makeMove(clickedPiece, fromBox, null, box);
-      dispatch(setClickedPiece(null));
-      dispatch(setClickedBox(null));
-      return;
+    if (clickedPiece.pieceType === "REGULAR") {
+      handleRegularMove(fromBox, box, clickedPiece.pieceDirection);
+      handleRegularKillMove(fromBox, box);
     }
+  };
+
+  const handleRegularMove = (fromBox, box, direction) => {
+    const validRegularMove = isRegularMove(fromBox, box, direction);
+    if (validRegularMove) makeMove(clickedPiece, fromBox, null, box);
+  };
+
+  const handleRegularKillMove = (fromBox, box) => {
     const middleBoxAddOn = Math.abs(fromBox.boxNumber - box.boxNumber) / 2;
     const middleBoxIndex =
       box.boxNumber > fromBox.boxNumber
@@ -74,32 +75,36 @@ const Box = ({ index }) => {
     if (middleBoxAddOn === 9 || middleBoxAddOn === 11) {
       const middleBox = getBoxByNumber(middleBoxIndex, allBoxes);
       const validKillMove = isRegularKillMove(fromBox, middleBox, box);
-      if (validKillMove) {
-        makeMove(clickedPiece, fromBox, middleBox, box);
-        dispatch(setClickedPiece(null));
-        dispatch(setClickedBox(null));
-      }
+      if (validKillMove) makeMove(clickedPiece, fromBox, middleBox, box);
     }
   };
 
   const makeMove = (clickedPiece, fromBox, middleBox = null, box) => {
+    setNewStates(clickedPiece, fromBox, middleBox, box);
+    dispatch(updatePiece(clickedPiece));
+    dispatch(updateBox(fromBox));
+    dispatch(updateBox(box));
+    dispatch(switchTurn());
+    dispatch(setClickedPiece(null));
+    dispatch(setClickedBox(null));
+  };
+
+  const setNewStates = (clickedPiece, fromBox, middleBox, box) => {
     fromBox.isFilled = false;
     fromBox.piece = null;
     box.isFilled = true;
     box.piece = clickedPiece;
     clickedPiece.index = box.boxNumber;
-    if (middleBox !== null) {
-      const pieceInMiddleBox = middleBox.piece;
-      pieceInMiddleBox.isAlive = false;
-      middleBox.isFilled = false;
-      middleBox.piece = null;
-      dispatch(updatePiece(pieceInMiddleBox));
-      dispatch(updateBox(middleBox));
-    }
-    dispatch(updatePiece(clickedPiece));
-    dispatch(updateBox(fromBox));
-    dispatch(updateBox(box));
-    dispatch(switchTurn());
+    if (middleBox !== null) setMiddleBoxState(middleBox);
+  };
+
+  const setMiddleBoxState = (middleBox) => {
+    const pieceInMiddleBox = middleBox.piece;
+    pieceInMiddleBox.isAlive = false;
+    middleBox.isFilled = false;
+    middleBox.piece = null;
+    dispatch(updatePiece(pieceInMiddleBox));
+    dispatch(updateBox(middleBox));
   };
 
   return (

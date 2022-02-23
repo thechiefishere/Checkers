@@ -10,7 +10,7 @@ import {
 import { addPiece, setClickedPiece, updateBox } from "../../store/actions";
 
 const Piece = ({ index, pieceNumber }) => {
-  const [pieceType, setPieceType] = useState("Regular");
+  const [pieceType, setPieceType] = useState("REGULAR");
   const [leftDimension, setLeftDimension] = useState(0);
   const [topDimension, setTopDimension] = useState(0);
   const [pieceColor, setPieceColor] = useState();
