@@ -1,30 +1,29 @@
 import { getBoxByNumber } from "./functions";
 
-const checkRegularMoveDown = (toBoxNumber, fromBoxNumber) => {
-  let boxDifference = toBoxNumber - fromBoxNumber;
-  if (boxDifference < 0) return false;
-  if (fromBoxNumber % 10 === 0 && boxDifference === 11) return true;
-  if (fromBoxNumber % 10 === 9 && boxDifference === 9) return true;
-  else if (boxDifference === 9 || boxDifference === 11) return true;
-  return false;
+const isValidAtEdge = (fromBoxNumber, toBoxNumber, boxDifference) => {
+  if (toBoxNumber > fromBoxNumber) {
+    if (fromBoxNumber % 10 === 0 && boxDifference === 9) return false;
+    if (fromBoxNumber % 10 === 9 && boxDifference === 11) return false;
+  } else {
+    if (fromBoxNumber % 10 === 0 && boxDifference === 11) return false;
+    if (fromBoxNumber % 10 === 9 && boxDifference === 9) return false;
+  }
+  return true;
 };
 
-const checkRegularMoveUp = (toBoxNumber, fromBoxNumber) => {
-  let boxDifference = fromBoxNumber - toBoxNumber;
+const checkRegularMove = (toBoxNumber, fromBoxNumber, direction) => {
+  let boxDifference = toBoxNumber - fromBoxNumber;
+  if (direction === "UP") boxDifference = fromBoxNumber - toBoxNumber;
   if (boxDifference < 0) return false;
-  if (fromBoxNumber % 10 === 0 && boxDifference === 9) return true;
-  if (fromBoxNumber % 10 === 9 && boxDifference === 11) return true;
-  else if (boxDifference === 9 || boxDifference === 11) return true;
+  if (!isValidAtEdge(toBoxNumber, fromBoxNumber, boxDifference)) return false;
+  if (boxDifference === 9 || boxDifference === 11) return true;
   return false;
 };
 
 export const isRegularMove = (fromBox, toBox, direction) => {
   if (toBox.isFilled) return false;
   let validMove = false;
-  if (direction === "DOWN")
-    validMove = checkRegularMoveDown(toBox.boxNumber, fromBox.boxNumber);
-  else if (direction === "UP")
-    validMove = checkRegularMoveUp(toBox.boxNumber, fromBox.boxNumber);
+  validMove = checkRegularMove(toBox.boxNumber, fromBox.boxNumber, direction);
   return validMove;
 };
 
@@ -56,6 +55,10 @@ export const isKingMove = (fromBox, toBox, allBoxes) => {
   if (toBox.isFilled) return false;
   const boxDifference = Math.abs(toBox.boxNumber - fromBox.boxNumber);
   if (boxDifference % 9 !== 0 && boxDifference % 11 !== 0) return false;
+  if (boxDifference === 11 || boxDifference === 9) {
+    if (!isValidAtEdge(toBox.boxNumber, fromBox.boxNumber, boxDifference))
+      return false;
+  }
   const boxAddOn = boxDifference % 11 === 0 ? 11 : 9;
   const emptyMiddleBoxes = areMiddleBoxesEmpty(
     fromBox,
