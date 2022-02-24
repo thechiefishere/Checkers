@@ -20,6 +20,7 @@ import {
   isRegularMove,
   isRegularKillMove,
   isKingMove,
+  isKingKill,
 } from "../../utils/moveFunctions";
 
 const Box = ({ index }) => {
@@ -32,6 +33,7 @@ const Box = ({ index }) => {
   const dispatch = useDispatch();
   const boxWidth = boardWidth / 10;
   const boxNumber = index;
+  let moveTaken = false;
 
   useEffect(() => {
     const left = getLeftDimension(index);
@@ -57,19 +59,27 @@ const Box = ({ index }) => {
   const handleBoxClick = () => {
     if (clickedPiece === null || boxColor === "YELLOW") return;
     const box = getBoxByNumber(index, allBoxes);
+    if (box.isFilled) return;
     const fromBox = getBoxByNumber(clickedPiece.index, allBoxes);
     dispatch(setClickedBox(box));
     if (clickedPiece.pieceType === "REGULAR") {
       handleRegularMove(fromBox, box, clickedPiece.pieceDirection);
-      handleRegularKillMove(fromBox, box);
+      if (!moveTaken) handleRegularKillMove(fromBox, box);
     } else {
       handleKingMove(fromBox, box, allBoxes);
+      if (!moveTaken) handleKingKill(fromBox, box, allBoxes);
     }
   };
 
   const handleKingMove = (fromBox, box, allBoxes) => {
     const validKingMove = isKingMove(fromBox, box, allBoxes);
     if (validKingMove) makeMove(clickedPiece, fromBox, null, box);
+  };
+
+  const handleKingKill = (fromBox, box, allBoxes) => {
+    const validKingKill = isKingKill(fromBox, box, allBoxes);
+    if (validKingKill.valid)
+      makeMove(clickedPiece, fromBox, validKingKill.middleBox, box);
   };
 
   const handleRegularMove = (fromBox, box, direction) => {
@@ -91,6 +101,7 @@ const Box = ({ index }) => {
   };
 
   const makeMove = (clickedPiece, fromBox, middleBox = null, box) => {
+    moveTaken = true;
     setNewStates(clickedPiece, fromBox, middleBox, box);
     dispatch(updatePiece(clickedPiece));
     dispatch(updateBox(fromBox));
