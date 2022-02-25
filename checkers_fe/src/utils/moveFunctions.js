@@ -34,11 +34,25 @@ const isSamePieceColor = (fromBox, middleBox) => {
   return false;
 };
 
-export const isRegularKillMove = (fromBox, middleBox, toBox) => {
-  if (toBox.isFilled) return false;
-  if (!middleBox.isFilled) return false;
-  if (isSamePieceColor(fromBox, middleBox)) return false;
-  return true;
+const getMiddleBox = (fromBox, toBox, allBoxes) => {
+  const middleBoxAddOn = Math.abs(fromBox.boxNumber - toBox.boxNumber) / 2;
+  if (middleBoxAddOn !== 9 && middleBoxAddOn !== 11) return null;
+  const middleBoxIndex =
+    toBox.boxNumber > fromBox.boxNumber
+      ? fromBox.boxNumber + middleBoxAddOn
+      : fromBox.boxNumber - middleBoxAddOn;
+  const middleBox = getBoxByNumber(middleBoxIndex, allBoxes);
+  return middleBox;
+};
+
+export const isRegularKillMove = (fromBox, toBox, allBoxes) => {
+  if (toBox.isFilled) return { valid: false, middleBox: null };
+  const middleBox = getMiddleBox(fromBox, toBox, allBoxes);
+  if (!middleBox || !middleBox.isFilled)
+    return { valid: false, middleBox: null };
+  if (isSamePieceColor(fromBox, middleBox))
+    return { valid: false, middleBox: null };
+  return { valid: true, middleBox };
 };
 
 const areMiddleBoxesEmpty = (fromBox, toBox, boxAddOn, allBoxes) => {
@@ -104,13 +118,13 @@ export const isKingKill = (fromBox, toBox, allBoxes) => {
     allBoxes
   );
   if (pieceCanDie) {
-    const box = getMiddleBox(fromBox, toBox, boxAddOn, allBoxes);
+    const box = getMiddleBoxForKingKill(fromBox, toBox, boxAddOn, allBoxes);
     return { valid: true, middleBox: box };
   }
   return { valid: false, middleBox: null };
 };
 
-export const getMiddleBox = (fromBox, toBox, boxAddOn, allBoxes) => {
+const getMiddleBoxForKingKill = (fromBox, toBox, boxAddOn, allBoxes) => {
   boxAddOn = fromBox.boxNumber > toBox.boxNumber ? -boxAddOn : boxAddOn;
   for (let i = fromBox.boxNumber + boxAddOn; ; ) {
     if (i === toBox.boxNumber) break;

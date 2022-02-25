@@ -51,3 +51,9 @@ export const getBoxByNumber = (boxNumber, allBoxes) => {
   const box = allBoxes.find((box) => box.boxNumber === boxNumber);
   return box;
 };
+
+// export const checkIfPieceCanKill = (allBoxes, turn) => {
+//   allBoxes.forEach((box) => {
+
+//   })
+// };

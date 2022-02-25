@@ -5,6 +5,7 @@ import {
   getBoxByNumber,
   getColorFromDimensions,
   getLeftDimension,
+  getMiddleBox,
   getPieceByNumber,
   getTopDimension,
 } from "../../utils/functions";
@@ -71,6 +72,17 @@ const Box = ({ index }) => {
     }
   };
 
+  const handleRegularMove = (fromBox, box, direction) => {
+    const validRegularMove = isRegularMove(fromBox, box, direction);
+    if (validRegularMove) makeMove(clickedPiece, fromBox, null, box);
+  };
+
+  const handleRegularKillMove = (fromBox, box) => {
+    const validKillMove = isRegularKillMove(fromBox, box, allBoxes);
+    if (validKillMove.valid)
+      makeMove(clickedPiece, fromBox, validKillMove.middleBox, box);
+  };
+
   const handleKingMove = (fromBox, box, allBoxes) => {
     const validKingMove = isKingMove(fromBox, box, allBoxes);
     if (validKingMove) makeMove(clickedPiece, fromBox, null, box);
@@ -82,33 +94,10 @@ const Box = ({ index }) => {
       makeMove(clickedPiece, fromBox, validKingKill.middleBox, box);
   };
 
-  const handleRegularMove = (fromBox, box, direction) => {
-    const validRegularMove = isRegularMove(fromBox, box, direction);
-    if (validRegularMove) makeMove(clickedPiece, fromBox, null, box);
-  };
-
-  const handleRegularKillMove = (fromBox, box) => {
-    const middleBoxAddOn = Math.abs(fromBox.boxNumber - box.boxNumber) / 2;
-    const middleBoxIndex =
-      box.boxNumber > fromBox.boxNumber
-        ? fromBox.boxNumber + middleBoxAddOn
-        : fromBox.boxNumber - middleBoxAddOn;
-    if (middleBoxAddOn === 9 || middleBoxAddOn === 11) {
-      const middleBox = getBoxByNumber(middleBoxIndex, allBoxes);
-      const validKillMove = isRegularKillMove(fromBox, middleBox, box);
-      if (validKillMove) makeMove(clickedPiece, fromBox, middleBox, box);
-    }
-  };
-
   const makeMove = (clickedPiece, fromBox, middleBox = null, box) => {
     moveTaken = true;
     setNewStates(clickedPiece, fromBox, middleBox, box);
-    dispatch(updatePiece(clickedPiece));
-    dispatch(updateBox(fromBox));
-    dispatch(updateBox(box));
-    dispatch(switchTurn());
-    dispatch(setClickedPiece(null));
-    dispatch(setClickedBox(null));
+    moveDispatch(clickedPiece, fromBox, box);
   };
 
   const setNewStates = (clickedPiece, fromBox, middleBox, box) => {
@@ -127,6 +116,15 @@ const Box = ({ index }) => {
     middleBox.piece = null;
     dispatch(updatePiece(pieceInMiddleBox));
     dispatch(updateBox(middleBox));
+  };
+
+  const moveDispatch = (clickedPiece, fromBox, box) => {
+    dispatch(updatePiece(clickedPiece));
+    dispatch(updateBox(fromBox));
+    dispatch(updateBox(box));
+    dispatch(switchTurn());
+    dispatch(setClickedPiece(null));
+    dispatch(setClickedBox(null));
   };
 
   return (
