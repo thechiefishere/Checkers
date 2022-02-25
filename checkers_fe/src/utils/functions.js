@@ -1,3 +1,5 @@
+import { isRegularKillMove } from "./moveFunctions";
+
 export const getLeftDimension = (index) => {
   return index % 10;
 };
@@ -52,8 +54,17 @@ export const getBoxByNumber = (boxNumber, allBoxes) => {
   return box;
 };
 
-// export const checkIfPieceCanKill = (allBoxes, turn) => {
-//   allBoxes.forEach((box) => {
-
-//   })
-// };
+export const checkIfPieceCanKill = (allBoxes, turn) => {
+  for (let i = 0; i < allBoxes.length; i++) {
+    const box = allBoxes[i];
+    if (!box.isFilled) continue;
+    if (box.piece.pieceColor !== turn) continue;
+    for (let j = 0; j < allBoxes.length; j++) {
+      const aBox = allBoxes[j];
+      if (aBox.isFilled) continue;
+      const move = isRegularKillMove(box, aBox, allBoxes);
+      if (move.valid) return { canKill: true, box };
+    }
+  }
+  return { canKill: false, box: null };
+};

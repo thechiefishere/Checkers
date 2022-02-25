@@ -66,3 +66,17 @@ export const updateBox = (box) => {
     payload: box,
   };
 };
+
+export const setAllBoxPiece = (pieceSet) => {
+  return {
+    type: "SET_ALL_BOX_PIECE",
+    payload: pieceSet,
+  };
+};
+
+export const setPieceThatMustKill = (pieceThatMustKill) => {
+  return {
+    type: "SET_PIECE_THAT_MUST_KILL",
+    payload: pieceThatMustKill,
+  };
+};

@@ -4,13 +4,15 @@ export const initialState = {
   allBoxes: JSON.parse(localStorage.getItem("boxes")) || [],
   playersDetails: JSON.parse(localStorage.getItem("playerDetails")) || {
     player1: "HUMAN",
-    player2: "CPU",
+    player2: "HUMAN",
     player1Color: "WHITE",
     player2Color: "GREEN",
   },
   turn: localStorage.getItem("turn") || "WHITE",
   clickedPiece: null,
   clickedBox: null,
+  allBoxPieceSet: localStorage.getItem("allBoxPieceSet") || false,
+  pieceThatMustKill: localStorage.getItem("pieceThatMustKill") || null,
 };
 
 export const reducer = (state = initialState, action) => {
@@ -96,6 +98,20 @@ export const reducer = (state = initialState, action) => {
       return {
         ...state,
         allBoxes: updatedBoxes,
+      };
+    }
+    case "SET_ALL_BOX_PIECE": {
+      localStorage.setItem("allBoxPieceSet", action.payload);
+      return {
+        ...state,
+        allBoxPieceSet: action.payload,
+      };
+    }
+    case "SET_PIECE_THAT_MUST_KILL": {
+      localStorage.setItem("pieceThatMustKill", action.payload);
+      return {
+        ...state,
+        pieceThatMustKill: action.payload,
       };
     }
     default:

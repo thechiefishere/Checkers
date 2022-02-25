@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import "./Board.css";
 import Box from "../Box/Box";
 import Piece from "../Piece/Piece";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setBoardWidth } from "../../store/actions";
 import { getColorFromDimensions } from "../../utils/functions";
 
@@ -10,8 +10,6 @@ const Board = () => {
   const boardRef = useRef();
   const dispatch = useDispatch();
   const totalNumberOfBoxes = 100;
-
-  const playersDetails = useSelector((state) => state.playersDetails);
 
   useEffect(() => {
     dispatch(setBoardWidth(boardRef.current.getBoundingClientRect().width));

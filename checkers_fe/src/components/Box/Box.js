@@ -5,7 +5,6 @@ import {
   getBoxByNumber,
   getColorFromDimensions,
   getLeftDimension,
-  getMiddleBox,
   getPieceByNumber,
   getTopDimension,
 } from "../../utils/functions";
@@ -26,9 +25,9 @@ import {
 
 const Box = ({ index }) => {
   const [boxColor, setBoxColor] = useState();
-  const [pieceSet, setPieceSet] = useState(false);
   const boardWidth = useSelector((state) => state.boardWidth);
   const clickedPiece = useSelector((state) => state.clickedPiece);
+  const allBoxPieceSet = useSelector((state) => state.allBoxPieceSet);
   const allBoxes = useSelector((state) => state.allBoxes);
   const allPiece = useSelector((state) => state.allPiece);
   const dispatch = useDispatch();
@@ -48,13 +47,12 @@ const Box = ({ index }) => {
   }, []);
 
   useEffect(() => {
-    if (allPiece.length !== 40 || pieceSet) return;
+    if (allPiece.length !== 40 || allBoxPieceSet) return;
     const piece = getPieceByNumber(index, allPiece);
     const box = getBoxByNumber(index, allBoxes);
     if (!box || !piece) return;
     box.piece = piece;
     dispatch(updateBox(box));
-    setPieceSet(true);
   }, [allPiece]);
 
   const handleBoxClick = () => {
