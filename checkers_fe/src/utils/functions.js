@@ -54,7 +54,9 @@ export const getBoxByNumber = (boxNumber, allBoxes) => {
   return box;
 };
 
-export const checkIfPieceCanKill = (allBoxes, turn) => {
+export const checkIfPiecesCanKill = (allBoxes, turn) => {
+  let boxes = [];
+  let canKill = false;
   for (let i = 0; i < allBoxes.length; i++) {
     const box = allBoxes[i];
     if (!box.isFilled) continue;
@@ -63,8 +65,11 @@ export const checkIfPieceCanKill = (allBoxes, turn) => {
       const aBox = allBoxes[j];
       if (aBox.isFilled) continue;
       const move = isRegularKillMove(box, aBox, allBoxes);
-      if (move.valid) return { canKill: true, box };
+      if (move.valid) {
+        canKill = true;
+        boxes.push(box);
+      }
     }
   }
-  return { canKill: false, box: null };
+  return { canKill, boxes };
 };

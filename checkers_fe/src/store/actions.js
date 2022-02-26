@@ -74,9 +74,9 @@ export const setAllBoxPiece = (pieceSet) => {
   };
 };
 
-export const setPieceThatMustKill = (pieceThatMustKill) => {
+export const setPiecesThatMustKill = (piecesThatMustKill) => {
   return {
-    type: "SET_PIECE_THAT_MUST_KILL",
-    payload: pieceThatMustKill,
+    type: "SET_PIECES_THAT_MUST_KILL",
+    payload: piecesThatMustKill,
   };
 };

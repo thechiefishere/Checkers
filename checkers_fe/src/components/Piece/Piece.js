@@ -15,12 +15,14 @@ const Piece = ({ index, pieceNumber }) => {
   const [topDimension, setTopDimension] = useState(0);
   const [pieceColor, setPieceColor] = useState();
   const [isAlive, setIsAlive] = useState(true);
+  const [clicked, setClicked] = useState(false);
 
   const boardWidth = useSelector((state) => state.boardWidth);
   const turn = useSelector((state) => state.turn);
   const playersDetails = useSelector((state) => state.playersDetails);
   const clickedPiece = useSelector((state) => state.clickedPiece);
   const allPiece = useSelector((state) => state.allPiece);
+  const piecesThatMustKill = useSelector((state) => state.piecesThatMustKill);
   const dispatch = useDispatch();
   const PieceWidth = boardWidth / 10;
 
@@ -46,6 +48,17 @@ const Piece = ({ index, pieceNumber }) => {
     savedData();
   }, [allPiece]);
 
+  useEffect(() => {
+    if (!clickedPiece) setClicked(false);
+    const isClicked =
+      clickedPiece !== null && clickedPiece.pieceNumber === pieceNumber;
+    if (isClicked) setClicked(true);
+    if (!piecesThatMustKill) return;
+    piecesThatMustKill.map((piece) => {
+      if (piece.pieceNumber === pieceNumber) setClicked(true);
+    });
+  }, [clickedPiece, piecesThatMustKill]);
+
   const savedData = () => {
     const piece = getPieceByNumber(pieceNumber, allPiece);
     if (!piece) return;
@@ -61,7 +74,12 @@ const Piece = ({ index, pieceNumber }) => {
     const validClick = validateClick(turn, playersDetails, pieceColor);
     if (!validClick) return;
     const piece = getPieceByNumber(pieceNumber, allPiece);
-    dispatch(setClickedPiece(piece));
+    if (piecesThatMustKill) {
+      const pieceIsIn = piecesThatMustKill.some(
+        (aPiece) => aPiece.pieceNumber === piece.pieceNumber
+      );
+      if (pieceIsIn) dispatch(setClickedPiece(piece));
+    } else dispatch(setClickedPiece(piece));
   };
 
   return (
@@ -69,11 +87,7 @@ const Piece = ({ index, pieceNumber }) => {
       {isAlive && (
         <div
           onClick={handlePieceClick}
-          className={`piece ${
-            clickedPiece !== null &&
-            clickedPiece.pieceNumber === pieceNumber &&
-            "piece--clicked"
-          }`}
+          className={`piece ${clicked && "piece--clicked"}`}
           style={{
             backgroundColor: `${pieceColor}`,
             width: PieceWidth - 10,

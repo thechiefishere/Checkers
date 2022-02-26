@@ -12,7 +12,8 @@ export const initialState = {
   clickedPiece: null,
   clickedBox: null,
   allBoxPieceSet: localStorage.getItem("allBoxPieceSet") || false,
-  pieceThatMustKill: localStorage.getItem("pieceThatMustKill") || null,
+  piecesThatMustKill:
+    JSON.parse(localStorage.getItem("piecesThatMustKill")) || null,
 };
 
 export const reducer = (state = initialState, action) => {
@@ -107,11 +108,14 @@ export const reducer = (state = initialState, action) => {
         allBoxPieceSet: action.payload,
       };
     }
-    case "SET_PIECE_THAT_MUST_KILL": {
-      localStorage.setItem("pieceThatMustKill", action.payload);
+    case "SET_PIECES_THAT_MUST_KILL": {
+      localStorage.setItem(
+        "piecesThatMustKill",
+        JSON.stringify(action.payload)
+      );
       return {
         ...state,
-        pieceThatMustKill: action.payload,
+        piecesThatMustKill: action.payload,
       };
     }
     default:

@@ -4,12 +4,8 @@ import Home from "./pages/Home/Home";
 import Game from "./pages/Game/Game";
 import { useSelector, useDispatch } from "react-redux";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { checkIfPieceCanKill } from "./utils/functions";
-import {
-  setAllBoxPiece,
-  setClickedPiece,
-  setPieceThatMustKill,
-} from "./store/actions";
+import { checkIfPiecesCanKill } from "./utils/functions";
+import { setAllBoxPiece, setPiecesThatMustKill } from "./store/actions";
 
 function App() {
   const turn = useSelector((state) => state.turn);
@@ -18,10 +14,10 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const pieceExist = checkIfPieceCanKill(allBoxes, turn);
+    const pieceExist = checkIfPiecesCanKill(allBoxes, turn);
     if (!pieceExist.canKill) return;
-    const piece = pieceExist.box.piece;
-    dispatch(setClickedPiece(piece));
+    const pieces = pieceExist.boxes.map((box) => box.piece);
+    dispatch(setPiecesThatMustKill(pieces));
   }, [turn]);
 
   useEffect(() => {

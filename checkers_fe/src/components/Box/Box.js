@@ -12,6 +12,7 @@ import {
   addBox,
   setClickedBox,
   setClickedPiece,
+  setPiecesThatMustKill,
   switchTurn,
   updateBox,
   updatePiece,
@@ -25,11 +26,13 @@ import {
 
 const Box = ({ index }) => {
   const [boxColor, setBoxColor] = useState();
+
   const boardWidth = useSelector((state) => state.boardWidth);
   const clickedPiece = useSelector((state) => state.clickedPiece);
   const allBoxPieceSet = useSelector((state) => state.allBoxPieceSet);
   const allBoxes = useSelector((state) => state.allBoxes);
   const allPiece = useSelector((state) => state.allPiece);
+
   const dispatch = useDispatch();
   const boxWidth = boardWidth / 10;
   const boxNumber = index;
@@ -123,6 +126,7 @@ const Box = ({ index }) => {
     dispatch(switchTurn());
     dispatch(setClickedPiece(null));
     dispatch(setClickedBox(null));
+    dispatch(setPiecesThatMustKill(null));
   };
 
   return (
