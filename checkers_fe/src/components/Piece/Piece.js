@@ -15,7 +15,8 @@ const Piece = ({ index, pieceNumber }) => {
   const [topDimension, setTopDimension] = useState(0);
   const [pieceColor, setPieceColor] = useState();
   const [isAlive, setIsAlive] = useState(true);
-  const [clicked, setClicked] = useState(false);
+  // const [clicked, setClicked] = useState(false);
+  const [canKill, setCanKill] = useState(false);
 
   const boardWidth = useSelector((state) => state.boardWidth);
   const turn = useSelector((state) => state.turn);
@@ -49,15 +50,12 @@ const Piece = ({ index, pieceNumber }) => {
   }, [allPiece]);
 
   useEffect(() => {
-    if (!clickedPiece) setClicked(false);
-    const isClicked =
-      clickedPiece !== null && clickedPiece.pieceNumber === pieceNumber;
-    if (isClicked) setClicked(true);
+    setCanKill(false);
     if (!piecesThatMustKill) return;
     piecesThatMustKill.map((piece) => {
-      if (piece.pieceNumber === pieceNumber) setClicked(true);
+      if (piece.pieceNumber === pieceNumber) setCanKill(true);
     });
-  }, [clickedPiece, piecesThatMustKill]);
+  }, [piecesThatMustKill]);
 
   const savedData = () => {
     const piece = getPieceByNumber(pieceNumber, allPiece);
@@ -87,7 +85,11 @@ const Piece = ({ index, pieceNumber }) => {
       {isAlive && (
         <div
           onClick={handlePieceClick}
-          className={`piece ${clicked && "piece--clicked"}`}
+          className={`piece ${
+            clickedPiece !== null &&
+            clickedPiece.pieceNumber === pieceNumber &&
+            "piece--clicked"
+          } ${canKill && "piece--canKill"}`}
           style={{
             backgroundColor: `${pieceColor}`,
             width: PieceWidth - 10,

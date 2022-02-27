@@ -7,6 +7,10 @@
   margin-left: 5px;
 }
 .piece--clicked {
-  border: 3px solid blue;
+  border: 3px solid blue !important;
+  border-radius: 15%;
+}
+.piece--canKill {
+  border: 3px solid rgb(7, 203, 252);
   border-radius: 15%;
 }
