@@ -4,7 +4,10 @@ import Home from "./pages/Home/Home";
 import Game from "./pages/Game/Game";
 import { useSelector, useDispatch } from "react-redux";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { checkIfPiecesCanKill } from "./utils/functions";
+import {
+  checkIfPiecesCanKill,
+  getBoxesWithPieceThatCanKill,
+} from "./utils/functions";
 import { setAllBoxPiece, setPiecesThatMustKill } from "./store/actions";
 
 function App() {
@@ -15,8 +18,9 @@ function App() {
 
   useEffect(() => {
     const pieceExist = checkIfPiecesCanKill(allBoxes, turn);
-    if (!pieceExist.canKill) return;
-    const pieces = pieceExist.boxes.map((box) => box.piece);
+    if (!pieceExist) return;
+    const boxes = getBoxesWithPieceThatCanKill(allBoxes, turn);
+    const pieces = boxes.map((box) => box.piece);
     dispatch(setPiecesThatMustKill(pieces));
   }, [turn]);
 

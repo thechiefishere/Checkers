@@ -45,7 +45,7 @@ const Box = ({ index }) => {
     const filled =
       (index < 40 || index > 59) && color !== "YELLOW" ? true : false;
     setBoxColor(color);
-    const box = { boxNumber, left, top, isFilled: filled };
+    const box = { boxNumber, left, top, isFilled: filled, boxColor: color };
     dispatch(addBox(box));
   }, []);
 
