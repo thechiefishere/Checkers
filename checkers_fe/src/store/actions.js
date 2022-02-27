@@ -80,3 +80,17 @@ export const setPiecesThatMustKill = (piecesThatMustKill) => {
     payload: piecesThatMustKill,
   };
 };
+
+export const setIsKillMove = (isKillMove) => {
+  return {
+    type: "SET_IS_KILL_MOVE",
+    payload: isKillMove,
+  };
+};
+
+export const setPieceThatMadeLastKill = (pieceThatMadeLastKill) => {
+  return {
+    type: "SET_PIECE_THAT_MADE_LAST_KILL",
+    payload: pieceThatMadeLastKill,
+  };
+};

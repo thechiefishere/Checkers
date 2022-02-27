@@ -8,11 +8,21 @@ import {
   checkIfPiecesCanKill,
   getBoxesWithPieceThatCanKill,
 } from "./utils/functions";
-import { setAllBoxPiece, setPiecesThatMustKill } from "./store/actions";
+import {
+  setAllBoxPiece,
+  setIsKillMove,
+  setPiecesThatMustKill,
+  setPieceThatMadeLastKill,
+  switchTurn,
+} from "./store/actions";
 
 function App() {
   const turn = useSelector((state) => state.turn);
   const allBoxes = useSelector((state) => state.allBoxes);
+  const isKillMove = useSelector((state) => state.isKillMove);
+  const pieceThatMadeLastKill = useSelector(
+    (state) => state.pieceThatMadeLastKill
+  );
 
   const dispatch = useDispatch();
 
@@ -27,6 +37,31 @@ function App() {
   useEffect(() => {
     if (allBoxes.length === 100) dispatch(setAllBoxPiece(true));
   }, [allBoxes]);
+
+  useEffect(() => {
+    if (!isKillMove || !pieceThatMadeLastKill) return;
+    const pieceExist = checkIfPiecesCanKill(allBoxes, turn);
+    if (!pieceExist) {
+      dispatch(switchTurn());
+      dispatch(setIsKillMove(false));
+      dispatch(setPieceThatMadeLastKill(null));
+      return;
+    }
+    const boxes = getBoxesWithPieceThatCanKill(allBoxes, turn);
+    const pieces = boxes.map((box) => box.piece);
+    const pieceIsIn = pieces.some(
+      (piece) => piece.pieceNumber === pieceThatMadeLastKill.pieceNumber
+    );
+    if (pieceIsIn) {
+      dispatch(setPiecesThatMustKill([pieceThatMadeLastKill]));
+      dispatch(setIsKillMove(false));
+      dispatch(setPieceThatMadeLastKill(null));
+    } else {
+      dispatch(switchTurn());
+      dispatch(setIsKillMove(false));
+      dispatch(setPieceThatMadeLastKill(null));
+    }
+  }, [isKillMove]);
 
   return (
     <Router>

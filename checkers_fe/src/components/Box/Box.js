@@ -12,7 +12,9 @@ import {
   addBox,
   setClickedBox,
   setClickedPiece,
+  setIsKillMove,
   setPiecesThatMustKill,
+  setPieceThatMadeLastKill,
   switchTurn,
   updateBox,
   updatePiece,
@@ -81,7 +83,7 @@ const Box = ({ index }) => {
   const handleRegularKillMove = (fromBox, box) => {
     const validKillMove = isRegularKillMove(fromBox, box, allBoxes);
     if (validKillMove.valid)
-      makeMove(clickedPiece, fromBox, validKillMove.middleBox, box);
+      makeMove(clickedPiece, fromBox, validKillMove.middleBox, box, "KILL");
   };
 
   const handleKingMove = (fromBox, box, allBoxes) => {
@@ -92,13 +94,19 @@ const Box = ({ index }) => {
   const handleKingKill = (fromBox, box, allBoxes) => {
     const validKingKill = isKingKill(fromBox, box, allBoxes);
     if (validKingKill.valid)
-      makeMove(clickedPiece, fromBox, validKingKill.middleBox, box);
+      makeMove(clickedPiece, fromBox, validKingKill.middleBox, box, "KILL");
   };
 
-  const makeMove = (clickedPiece, fromBox, middleBox = null, box) => {
+  const makeMove = (
+    clickedPiece,
+    fromBox,
+    middleBox = null,
+    box,
+    moveType = "NORMAL"
+  ) => {
     moveTaken = true;
     setNewStates(clickedPiece, fromBox, middleBox, box);
-    moveDispatch(clickedPiece, fromBox, box);
+    moveDispatch(clickedPiece, fromBox, box, moveType);
   };
 
   const setNewStates = (clickedPiece, fromBox, middleBox, box) => {
@@ -119,14 +127,18 @@ const Box = ({ index }) => {
     dispatch(updateBox(middleBox));
   };
 
-  const moveDispatch = (clickedPiece, fromBox, box) => {
+  const moveDispatch = (clickedPiece, fromBox, box, moveType) => {
     dispatch(updatePiece(clickedPiece));
     dispatch(updateBox(fromBox));
     dispatch(updateBox(box));
-    dispatch(switchTurn());
     dispatch(setClickedPiece(null));
     dispatch(setClickedBox(null));
     dispatch(setPiecesThatMustKill(null));
+    if (moveType === "NORMAL") dispatch(switchTurn());
+    else {
+      dispatch(setIsKillMove(true));
+      dispatch(setPieceThatMadeLastKill(clickedPiece));
+    }
   };
 
   return (
