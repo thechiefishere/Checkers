@@ -34,6 +34,7 @@ const Box = ({ index }) => {
   const allBoxPieceSet = useSelector((state) => state.allBoxPieceSet);
   const allBoxes = useSelector((state) => state.allBoxes);
   const allPiece = useSelector((state) => state.allPiece);
+  const piecesThatMustKill = useSelector((state) => state.piecesThatMustKill);
 
   const dispatch = useDispatch();
   const boxWidth = boardWidth / 10;
@@ -76,6 +77,7 @@ const Box = ({ index }) => {
   };
 
   const handleRegularMove = (fromBox, box, direction) => {
+    if (piecesThatMustKill) return;
     const validRegularMove = isRegularMove(fromBox, box, direction);
     if (validRegularMove) makeMove(clickedPiece, fromBox, null, box);
   };
