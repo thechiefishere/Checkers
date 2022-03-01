@@ -11,6 +11,7 @@ import {
 import {
   setAllBoxPiece,
   setIsKillMove,
+  setMoveMade,
   setPiecesThatMustKill,
   setPieceThatMadeLastKill,
   switchTurn,
@@ -40,11 +41,13 @@ function App() {
 
   useEffect(() => {
     if (!isKillMove || !pieceThatMadeLastKill) return;
+    dispatch(setMoveMade(true));
     const pieceExist = checkIfPiecesCanKill(allBoxes, turn);
     if (!pieceExist) {
       dispatch(switchTurn());
       dispatch(setIsKillMove(false));
       dispatch(setPieceThatMadeLastKill(null));
+      dispatch(setPiecesThatMustKill(null));
       return;
     }
     const boxes = getBoxesWithPieceThatCanKill(allBoxes, turn);

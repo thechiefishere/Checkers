@@ -7,14 +7,17 @@ import {
   getLeftDimension,
   getPieceByNumber,
   getTopDimension,
+  isPieceInKingPosition,
 } from "../../utils/functions";
 import {
   addBox,
   setClickedBox,
   setClickedPiece,
   setIsKillMove,
+  setMoveMade,
   setPiecesThatMustKill,
   setPieceThatMadeLastKill,
+  setPieceThatMovedLast,
   switchTurn,
   updateBox,
   updatePiece,
@@ -131,13 +134,16 @@ const Box = ({ index }) => {
 
   const moveDispatch = (clickedPiece, fromBox, box, moveType) => {
     dispatch(updatePiece(clickedPiece));
+    dispatch(setPieceThatMovedLast(clickedPiece));
     dispatch(updateBox(fromBox));
     dispatch(updateBox(box));
     dispatch(setClickedPiece(null));
     dispatch(setClickedBox(null));
-    dispatch(setPiecesThatMustKill(null));
-    if (moveType === "NORMAL") dispatch(switchTurn());
-    else {
+    if (moveType === "NORMAL") {
+      dispatch(switchTurn());
+      dispatch(setMoveMade(true));
+      dispatch(setPiecesThatMustKill(null));
+    } else {
       dispatch(setIsKillMove(true));
       dispatch(setPieceThatMadeLastKill(clickedPiece));
     }

@@ -94,3 +94,17 @@ export const setPieceThatMadeLastKill = (pieceThatMadeLastKill) => {
     payload: pieceThatMadeLastKill,
   };
 };
+
+export const setPieceThatMovedLast = (pieceThatMovedLast) => {
+  return {
+    type: "SET_PIECE_THAT_MOVED_LAST",
+    payload: pieceThatMovedLast,
+  };
+};
+
+export const setMoveMade = (isMove) => {
+  return {
+    type: "SET_MOVE_MADE",
+    payload: isMove,
+  };
+};

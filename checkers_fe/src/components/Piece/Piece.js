@@ -5,9 +5,17 @@ import {
   getLeftDimension,
   getPieceByNumber,
   getTopDimension,
+  isPieceInKingPosition,
+  isPieceInPiecesThatMustKill,
   validateClick,
 } from "../../utils/functions";
-import { addPiece, setClickedPiece, updateBox } from "../../store/actions";
+import {
+  addPiece,
+  setClickedPiece,
+  setMoveMade,
+  updateBox,
+  updatePiece,
+} from "../../store/actions";
 
 const Piece = ({ index, pieceNumber }) => {
   const [pieceType, setPieceType] = useState("REGULAR");
@@ -15,7 +23,6 @@ const Piece = ({ index, pieceNumber }) => {
   const [topDimension, setTopDimension] = useState(0);
   const [pieceColor, setPieceColor] = useState();
   const [isAlive, setIsAlive] = useState(true);
-  // const [clicked, setClicked] = useState(false);
   const [canKill, setCanKill] = useState(false);
 
   const boardWidth = useSelector((state) => state.boardWidth);
@@ -24,6 +31,8 @@ const Piece = ({ index, pieceNumber }) => {
   const clickedPiece = useSelector((state) => state.clickedPiece);
   const allPiece = useSelector((state) => state.allPiece);
   const piecesThatMustKill = useSelector((state) => state.piecesThatMustKill);
+  const pieceThatMovedLast = useSelector((state) => state.pieceThatMovedLast);
+  const moveMade = useSelector((state) => state.moveMade);
   const dispatch = useDispatch();
   const PieceWidth = boardWidth / 10;
 
@@ -57,6 +66,12 @@ const Piece = ({ index, pieceNumber }) => {
     });
   }, [piecesThatMustKill]);
 
+  useEffect(() => {
+    if (!moveMade) return;
+    confirmKingship();
+    dispatch(setMoveMade(false));
+  }, [moveMade]);
+
   const savedData = () => {
     const piece = getPieceByNumber(pieceNumber, allPiece);
     if (!piece) return;
@@ -73,11 +88,21 @@ const Piece = ({ index, pieceNumber }) => {
     if (!validClick) return;
     const piece = getPieceByNumber(pieceNumber, allPiece);
     if (piecesThatMustKill) {
-      const pieceIsIn = piecesThatMustKill.some(
-        (aPiece) => aPiece.pieceNumber === piece.pieceNumber
-      );
+      const pieceIsIn = isPieceInPiecesThatMustKill(piece, piecesThatMustKill);
       if (pieceIsIn) dispatch(setClickedPiece(piece));
     } else dispatch(setClickedPiece(piece));
+  };
+
+  const confirmKingship = () => {
+    const isInKingPosition = isPieceInKingPosition(pieceThatMovedLast);
+    if (!isInKingPosition) return;
+    const pieceIsIn = isPieceInPiecesThatMustKill(
+      pieceThatMovedLast,
+      piecesThatMustKill
+    );
+    if (pieceIsIn) return;
+    pieceThatMovedLast.pieceType = "KING";
+    dispatch(updatePiece(pieceThatMovedLast));
   };
 
   return (

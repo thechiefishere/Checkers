@@ -85,3 +85,23 @@ export const getBoxesWithPieceThatCanKill = (allBoxes, turn) => {
   }
   return boxes;
 };
+
+export const isPieceInPiecesThatMustKill = (piece, piecesThatMustKill) => {
+  // console.log("piecesThatMustKill", piecesThatMustKill);
+  // console.log("piece", piece);
+  if (!piecesThatMustKill || !piece) return false;
+  const pieceIsIn = piecesThatMustKill.some(
+    (aPiece) => aPiece.pieceNumber === piece.pieceNumber
+  );
+  if (pieceIsIn) return true;
+  return false;
+};
+
+export const isPieceInKingPosition = (piece) => {
+  if (!piece) return false;
+  // console.log("am in isPieceInKingPosition");
+  const isWhitePieceAKing = piece.pieceNumber < 40 && piece.index > 89;
+  const isGreenPieceAKing = piece.pieceNumber > 40 && piece.index < 10;
+  if (isWhitePieceAKing || isGreenPieceAKing) return true;
+  return false;
+};
