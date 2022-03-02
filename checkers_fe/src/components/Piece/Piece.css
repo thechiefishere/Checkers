@@ -14,3 +14,9 @@
   border: 3px solid rgb(7, 203, 252);
   border-radius: 15%;
 }
+.piece--king {
+  color: black;
+  text-align: center;
+  font-size: 2em;
+  margin-top: 14px;
+}

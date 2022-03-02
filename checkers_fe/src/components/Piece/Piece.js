@@ -122,7 +122,9 @@ const Piece = ({ index, pieceNumber }) => {
             top: topDimension * PieceWidth,
             left: leftDimension * PieceWidth,
           }}
-        ></div>
+        >
+          {pieceType === "KING" && <h1 className="piece--king">K</h1>}
+        </div>
       )}
     </div>
   );
