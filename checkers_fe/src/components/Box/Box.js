@@ -7,7 +7,6 @@ import {
   getLeftDimension,
   getPieceByNumber,
   getTopDimension,
-  isPieceInKingPosition,
 } from "../../utils/functions";
 import {
   addBox,
@@ -27,6 +26,8 @@ import {
   isRegularKillMove,
   isKingMove,
   isKingKill,
+  canKingMakeSlantKill,
+  getSlantKillPositions,
 } from "../../utils/moveFunctions";
 
 const Box = ({ index }) => {
@@ -38,6 +39,7 @@ const Box = ({ index }) => {
   const allBoxes = useSelector((state) => state.allBoxes);
   const allPiece = useSelector((state) => state.allPiece);
   const piecesThatMustKill = useSelector((state) => state.piecesThatMustKill);
+  const turn = useSelector((state) => state.turn);
 
   const dispatch = useDispatch();
   const boxWidth = boardWidth / 10;
@@ -92,14 +94,36 @@ const Box = ({ index }) => {
   };
 
   const handleKingMove = (fromBox, box, allBoxes) => {
+    if (piecesThatMustKill) return;
     const validKingMove = isKingMove(fromBox, box, allBoxes);
     if (validKingMove) makeMove(clickedPiece, fromBox, null, box);
   };
 
   const handleKingKill = (fromBox, box, allBoxes) => {
     const validKingKill = isKingKill(fromBox, box, allBoxes);
-    if (validKingKill.valid)
+    if (validKingKill.valid) {
+      const slantKillPossible = canKingMakeSlantKill(
+        allBoxes,
+        fromBox,
+        box,
+        validKingKill.middleBox,
+        turn
+      );
+      if (slantKillPossible) {
+        const slantKillPositions = getSlantKillPositions(
+          allBoxes,
+          fromBox,
+          box,
+          validKingKill.middleBox,
+          turn
+        );
+        const validMove = slantKillPositions.some(
+          (aBox) => aBox.boxNumber === box.boxNumber
+        );
+        if (!validMove) return;
+      }
       makeMove(clickedPiece, fromBox, validKingKill.middleBox, box, "KILL");
+    }
   };
 
   const makeMove = (

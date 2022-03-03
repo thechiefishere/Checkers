@@ -1,4 +1,8 @@
-import { getBoxByNumber } from "./functions";
+import {
+  checkIfPiecesCanKill,
+  getBoxByNumber,
+  getBoxesWithPieceThatCanKill,
+} from "./functions";
 
 const isValidAtEdge = (fromBoxNumber, toBoxNumber, boxDifference) => {
   if (toBoxNumber > fromBoxNumber) {
@@ -79,7 +83,8 @@ const canOneMiddleBoxBeKilled = (fromBox, toBox, boxAddOn, allBoxes) => {
     if (filledBoxesCount === 2) return false;
     i += boxAddOn;
   }
-  return true;
+  if (filledBoxesCount === 1) return true;
+  return false;
 };
 
 export const isKingMove = (fromBox, toBox, allBoxes) => {
@@ -133,4 +138,58 @@ const getMiddleBoxForKingKill = (fromBox, toBox, boxAddOn, allBoxes) => {
     i += boxAddOn;
   }
   return null;
+};
+
+export const canKingMakeSlantKill = (
+  allBoxes,
+  fromBox,
+  toBox,
+  middleBox,
+  turn
+) => {
+  let copyOfAllBoxes = JSON.parse(JSON.stringify(allBoxes));
+  const boxDifference = Math.abs(toBox.boxNumber - fromBox.boxNumber);
+  let boxAddOn = boxDifference % 11 === 0 ? 11 : 9;
+  boxAddOn = fromBox.boxNumber > toBox.boxNumber ? -boxAddOn : boxAddOn;
+  copyOfAllBoxes[middleBox.boxNumber - boxAddOn].isFilled = true;
+  copyOfAllBoxes[middleBox.boxNumber - boxAddOn].piece = middleBox.piece;
+  for (let i = middleBox.boxNumber + boxAddOn; ; i += boxAddOn) {
+    if (i <= 0 || i >= 100) break;
+    const box = getBoxByNumber(i, copyOfAllBoxes);
+    if (box.isFilled) break;
+    copyOfAllBoxes[i].piece = fromBox.piece;
+    copyOfAllBoxes[i].isFilled = true;
+    if (checkIfPiecesCanKill(copyOfAllBoxes, turn)) return true;
+    if (i % 10 === 0 || i % 9 === 0) break;
+  }
+  return false;
+};
+
+export const getSlantKillPositions = (
+  allBoxes,
+  fromBox,
+  toBox,
+  middleBox,
+  turn
+) => {
+  let copyOfAllBoxes = JSON.parse(JSON.stringify(allBoxes));
+  const boxDifference = Math.abs(toBox.boxNumber - fromBox.boxNumber);
+  let boxAddOn = boxDifference % 11 === 0 ? 11 : 9;
+  boxAddOn = fromBox.boxNumber > toBox.boxNumber ? -boxAddOn : boxAddOn;
+  const slantKillPositions = [];
+  copyOfAllBoxes[middleBox.boxNumber - boxAddOn].isFilled = true;
+  copyOfAllBoxes[middleBox.boxNumber - boxAddOn].piece = middleBox.piece;
+  for (let i = middleBox.boxNumber + boxAddOn; ; i += boxAddOn) {
+    if (i <= 0 || i >= 100) break;
+    const box = getBoxByNumber(i, copyOfAllBoxes);
+    if (box.isFilled) break;
+    copyOfAllBoxes[i].piece = fromBox.piece;
+    copyOfAllBoxes[i].isFilled = true;
+    if (checkIfPiecesCanKill(copyOfAllBoxes, turn))
+      slantKillPositions.push(box);
+    copyOfAllBoxes[i].piece = null;
+    copyOfAllBoxes[i].isFilled = false;
+    if (i % 10 === 0 || i % 9 === 0) break;
+  }
+  return slantKillPositions;
 };

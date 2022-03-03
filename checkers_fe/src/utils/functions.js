@@ -1,4 +1,4 @@
-import { isRegularKillMove } from "./moveFunctions";
+import { isKingKill, isRegularKillMove } from "./moveFunctions";
 
 export const getLeftDimension = (index) => {
   return index % 10;
@@ -63,8 +63,13 @@ export const checkIfPiecesCanKill = (allBoxes, turn) => {
       const aBox = allBoxes[j];
       if (aBox.isFilled) continue;
       if (aBox.boxColor === "YELLOW") continue;
-      const move = isRegularKillMove(box, aBox, allBoxes);
-      if (move.valid) return true;
+      if (box.piece.pieceType === "REGULAR") {
+        const regularMove = isRegularKillMove(box, aBox, allBoxes);
+        if (regularMove.valid) return true;
+      } else {
+        const kingMove = isKingKill(box, aBox, allBoxes);
+        if (kingMove.valid) return true;
+      }
     }
   }
   return false;
@@ -79,16 +84,22 @@ export const getBoxesWithPieceThatCanKill = (allBoxes, turn) => {
     for (let j = 0; j < allBoxes.length; j++) {
       const aBox = allBoxes[j];
       if (aBox.isFilled) continue;
-      const move = isRegularKillMove(box, aBox, allBoxes);
-      if (move.valid) boxes.push(box);
+      if (box.piece.pieceType === "REGULAR") {
+        const regularMove = isRegularKillMove(box, aBox, allBoxes);
+        if (regularMove.valid) boxes.push(box);
+      } else {
+        const kingMove = isKingKill(box, aBox, allBoxes);
+        if (kingMove.valid) {
+          boxes.push(box);
+          break;
+        }
+      }
     }
   }
   return boxes;
 };
 
 export const isPieceInPiecesThatMustKill = (piece, piecesThatMustKill) => {
-  // console.log("piecesThatMustKill", piecesThatMustKill);
-  // console.log("piece", piece);
   if (!piecesThatMustKill || !piece) return false;
   const pieceIsIn = piecesThatMustKill.some(
     (aPiece) => aPiece.pieceNumber === piece.pieceNumber
@@ -99,7 +110,6 @@ export const isPieceInPiecesThatMustKill = (piece, piecesThatMustKill) => {
 
 export const isPieceInKingPosition = (piece) => {
   if (!piece) return false;
-  // console.log("am in isPieceInKingPosition");
   const isWhitePieceAKing = piece.pieceNumber < 40 && piece.index > 89;
   const isGreenPieceAKing = piece.pieceNumber > 40 && piece.index < 10;
   if (isWhitePieceAKing || isGreenPieceAKing) return true;
