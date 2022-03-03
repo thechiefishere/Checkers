@@ -52,7 +52,12 @@ const getMiddleBox = (fromBox, toBox, allBoxes) => {
 export const isRegularKillMove = (fromBox, toBox, allBoxes) => {
   if (toBox.isFilled) return { valid: false, middleBox: null };
   const middleBox = getMiddleBox(fromBox, toBox, allBoxes);
-  if (!middleBox || !middleBox.isFilled)
+  if (
+    !middleBox ||
+    !middleBox.isFilled ||
+    middleBox.boxNumber % 10 === 9 ||
+    middleBox.boxNumber % 10 === 0
+  )
     return { valid: false, middleBox: null };
   if (isSamePieceColor(fromBox, middleBox))
     return { valid: false, middleBox: null };
