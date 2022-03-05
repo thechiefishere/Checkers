@@ -16,11 +16,13 @@ import {
   setPieceThatMadeLastKill,
   switchTurn,
 } from "./store/actions";
+import { computerMove } from "./utils/aiFunctions";
 
 function App() {
   const turn = useSelector((state) => state.turn);
   const allBoxes = useSelector((state) => state.allBoxes);
   const isKillMove = useSelector((state) => state.isKillMove);
+  const playersDetails = useSelector((state) => state.playersDetails);
   const pieceThatMadeLastKill = useSelector(
     (state) => state.pieceThatMadeLastKill
   );
@@ -33,6 +35,15 @@ function App() {
     const boxes = getBoxesWithPieceThatCanKill(allBoxes, turn);
     const pieces = boxes.map((box) => box.piece);
     dispatch(setPiecesThatMustKill(pieces));
+  }, [turn]);
+
+  useEffect(() => {
+    if (
+      playersDetails.player2 === "CPU" &&
+      turn === playersDetails.player2Color
+    ) {
+      computerMove(allBoxes, turn);
+    }
   }, [turn]);
 
   useEffect(() => {

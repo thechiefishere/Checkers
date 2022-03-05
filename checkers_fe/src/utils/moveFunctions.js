@@ -1,8 +1,4 @@
-import {
-  checkIfPiecesCanKill,
-  getBoxByNumber,
-  getBoxesWithPieceThatCanKill,
-} from "./functions";
+import { checkIfPiecesCanKill, getBoxByNumber } from "./functions";
 
 const isValidAtEdge = (fromBoxNumber, toBoxNumber, boxDifference) => {
   if (toBoxNumber > fromBoxNumber) {
