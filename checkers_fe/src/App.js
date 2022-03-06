@@ -15,6 +15,8 @@ import {
   setPiecesThatMustKill,
   setPieceThatMadeLastKill,
   switchTurn,
+  updateBox,
+  updatePiece,
 } from "./store/actions";
 import { calculateMove } from "./utils/aiFunctions";
 
@@ -42,7 +44,10 @@ function App() {
       playersDetails.player2 === "CPU" &&
       turn === playersDetails.player2Color
     ) {
-      calculateMove(allBoxes, turn);
+      const aiBestMove = calculateMove(allBoxes, turn);
+      setTimeout(() => {
+        makeAIMove(aiBestMove.box, aiBestMove.toBox);
+      }, 1000);
     }
   }, [turn]);
 
@@ -76,6 +81,19 @@ function App() {
       dispatch(setPieceThatMadeLastKill(null));
     }
   }, [isKillMove]);
+
+  const makeAIMove = (box, toBox) => {
+    const pieceInBox = box.piece;
+    pieceInBox.index = toBox.boxNumber;
+    box.isFilled = false;
+    box.piece = null;
+    toBox.isFilled = true;
+    toBox.piece = pieceInBox;
+    dispatch(updatePiece(pieceInBox));
+    dispatch(updateBox(box));
+    dispatch(updateBox(toBox));
+    dispatch(switchTurn());
+  };
 
   return (
     <Router>

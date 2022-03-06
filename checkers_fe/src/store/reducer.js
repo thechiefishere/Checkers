@@ -4,7 +4,7 @@ export const initialState = {
   allBoxes: JSON.parse(localStorage.getItem("boxes")) || [],
   playersDetails: JSON.parse(localStorage.getItem("playerDetails")) || {
     player1: "HUMAN",
-    player2: "HUMAN",
+    player2: "CPU",
     player1Color: "WHITE",
     player2Color: "GREEN",
   },

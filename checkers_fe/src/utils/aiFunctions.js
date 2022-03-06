@@ -12,10 +12,13 @@ export const calculateMove = (allBoxes, turn, callNumber = 1) => {
   const copyOfAllBoxes = JSON.parse(JSON.stringify(allBoxes));
   for (let i = 0; i < copyOfAllBoxes.length; i++) {
     const box = copyOfAllBoxes[i];
+    if (callNumber === 1 && box.boxNumber === 0) allMoves = [];
     const passedChecks = initialChecksPass(copyOfAllBoxes, box, turn);
     if (!passedChecks) {
-      if (callNumber === 1 && box.boxNumber === 99)
-        console.log("allMoves A", allMoves);
+      if (callNumber === 1 && box.boxNumber === 99) {
+        // console.log("allMoves A", allMoves);
+        return getBestMove(allMoves);
+      }
       continue;
     }
     const validMoves = getPieceValidMoves(box, copyOfAllBoxes);
@@ -37,8 +40,10 @@ export const calculateMove = (allBoxes, turn, callNumber = 1) => {
       //   }
       tryValidMove(box, toBox, copyOfAllBoxes, turn, callNumber);
     });
-    if (callNumber === 1 && box.boxNumber === 99)
-      console.log("allMoves B", allMoves);
+    if (callNumber === 1 && box.boxNumber === 99) {
+      //   console.log("allMoves B", allMoves);
+      return getBestMove(allMoves);
+    }
   }
 };
 
@@ -81,12 +86,8 @@ const tryValidMove = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
     // console.log(".......call 1 fakedBoxes", fakedBoxes);
     calculateMove(fakedBoxes, nextTurn, 2);
     if (playerMovesRating) {
-      const aiBestRating = getAiBestRating(playerMovesRating);
-      aiMoveRating = {
-        fromBox: box.boxNumber,
-        toBox: toBox.boxNumber,
-        aiBestRating,
-      };
+      const rating = getAiBestRating(playerMovesRating);
+      aiMoveRating = { box, toBox, rating };
       singleMove = { aiMoveRating, playerMovesRating, aiCounterMoveRating };
       playerMovesRating = [];
       aiCounterMoveRating = [];
@@ -156,6 +157,19 @@ const fakeTheBoxes = (box, toBox, copyOfAllBoxes) => {
   fakedBoxes[box.boxNumber].isFilled = false;
   fakedBoxes[box.boxNumber].piece = null;
   return fakedBoxes;
+};
+
+const getBestMove = (allMoves) => {
+  const bestMoveRating = allMoves[0].aiMoveRating.rating;
+  const bestMove = allMoves[0].aiMoveRating;
+  allMoves.map((move) => {
+    const rating = move.aiMoveRating.rating;
+    if (rating < bestMoveRating) {
+      bestMoveRating = rating;
+      bestMove = move;
+    }
+  });
+  return bestMove;
 };
 
 // const playerReactionToFakedMove = (fakedBoxes) => {
