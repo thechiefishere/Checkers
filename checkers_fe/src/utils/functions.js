@@ -115,3 +115,7 @@ export const isPieceInKingPosition = (piece) => {
   if (isWhitePieceAKing || isGreenPieceAKing) return true;
   return false;
 };
+
+export const getNextTurn = (turn) => {
+  return turn === "WHITE" ? "GREEN" : "WHITE";
+};

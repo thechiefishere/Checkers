@@ -16,7 +16,7 @@ import {
   setPieceThatMadeLastKill,
   switchTurn,
 } from "./store/actions";
-import { computerMove } from "./utils/aiFunctions";
+import { calculateMove } from "./utils/aiFunctions";
 
 function App() {
   const turn = useSelector((state) => state.turn);
@@ -42,7 +42,7 @@ function App() {
       playersDetails.player2 === "CPU" &&
       turn === playersDetails.player2Color
     ) {
-      computerMove(allBoxes, turn);
+      calculateMove(allBoxes, turn);
     }
   }, [turn]);
 
