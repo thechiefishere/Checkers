@@ -1,4 +1,8 @@
-import { checkIfPiecesCanKill, getBoxByNumber } from "./functions";
+import {
+  checkIfPiecesCanKill,
+  getBoxByNumber,
+  getBoxesWithPieceThatCanKill,
+} from "./functions";
 
 const isValidAtEdge = (fromBoxNumber, toBoxNumber, boxDifference) => {
   if (toBoxNumber > fromBoxNumber) {
@@ -34,7 +38,7 @@ const isSamePieceColor = (fromBox, middleBox) => {
   return false;
 };
 
-const getMiddleBox = (fromBox, toBox, allBoxes) => {
+export const getMiddleBox = (fromBox, toBox, allBoxes) => {
   const middleBoxAddOn = Math.abs(fromBox.boxNumber - toBox.boxNumber) / 2;
   if (middleBoxAddOn !== 9 && middleBoxAddOn !== 11) return null;
   const middleBoxIndex =
@@ -89,7 +93,7 @@ const canOneMiddleBoxBeKilled = (fromBox, toBox, boxAddOn, allBoxes) => {
 };
 
 export const isKingMove = (fromBox, toBox, allBoxes) => {
-  const boxDifference = Math.abs(toBox.boxNumber - fromBox.boxNumber);
+  const boxDifference = getBoxDifference(fromBox, toBox);
   if (!boxDifferencePass(fromBox, toBox, boxDifference)) return false;
   const boxAddOn = boxDifference % 11 === 0 ? 11 : 9;
   const emptyMiddleBoxes = areMiddleBoxesEmpty(
@@ -104,6 +108,7 @@ export const isKingMove = (fromBox, toBox, allBoxes) => {
 
 const boxDifferencePass = (fromBox, toBox, boxDifference) => {
   if (toBox.isFilled) return false;
+  if (toBox.boxColor === "YELLOW") return false;
   if (boxDifference % 9 !== 0 && boxDifference % 11 !== 0) return false;
   if (boxDifference === 11 || boxDifference === 9) {
     if (!isValidAtEdge(toBox.boxNumber, fromBox.boxNumber, boxDifference))
@@ -112,8 +117,8 @@ const boxDifferencePass = (fromBox, toBox, boxDifference) => {
   return true;
 };
 
-export const isKingKill = (fromBox, toBox, allBoxes) => {
-  const boxDifference = Math.abs(toBox.boxNumber - fromBox.boxNumber);
+export const isKingKill = (fromBox, toBox, allBoxes, turn, checkSlant) => {
+  const boxDifference = getBoxDifference(fromBox, toBox);
   if (!boxDifferencePass(fromBox, toBox, boxDifference))
     return { valid: false, middleBox: null };
   const boxAddOn = boxDifference % 11 === 0 ? 11 : 9;
@@ -123,11 +128,32 @@ export const isKingKill = (fromBox, toBox, allBoxes) => {
     boxAddOn,
     allBoxes
   );
+
   if (pieceCanDie) {
-    const box = getMiddleBoxForKingKill(fromBox, toBox, boxAddOn, allBoxes);
-    return { valid: true, middleBox: box };
+    const middleBox = getMiddleBoxForKingKill(
+      fromBox,
+      toBox,
+      boxAddOn,
+      allBoxes
+    );
+    if (!checkSlant) return { valid: true, middleBox };
+    const inSlantKillPosition = isInSlantKillPosition(
+      allBoxes,
+      fromBox,
+      toBox,
+      middleBox,
+      turn
+    );
+    if (inSlantKillPosition) return { valid: true, middleBox };
   }
   return { valid: false, middleBox: null };
+};
+
+const getBoxDifference = (fromBox, toBox) => {
+  return Math.abs(toBox.boxNumber - fromBox.boxNumber);
+};
+const getBoxAddOn = (boxDifference) => {
+  return boxDifference % 11 === 0 ? 11 : 9;
 };
 
 const getMiddleBoxForKingKill = (fromBox, toBox, boxAddOn, allBoxes) => {
@@ -141,6 +167,32 @@ const getMiddleBoxForKingKill = (fromBox, toBox, boxAddOn, allBoxes) => {
   return null;
 };
 
+const isInSlantKillPosition = (allBoxes, fromBox, toBox, middleBox, turn) => {
+  const slantKillPossible = canKingMakeSlantKill(
+    allBoxes,
+    fromBox,
+    toBox,
+    middleBox,
+    turn
+  );
+  // console.log("slantKillPossible", slantKillPossible);
+  if (slantKillPossible) {
+    const slantKillPositions = getSlantKillPositions(
+      allBoxes,
+      fromBox,
+      toBox,
+      middleBox,
+      turn
+    );
+    // console.log("slantKillPositions", slantKillPositions);
+    const validMove = slantKillPositions.some(
+      (aBox) => aBox.boxNumber === toBox.boxNumber
+    );
+    if (validMove) return true;
+  } else return true;
+  return false;
+};
+
 export const canKingMakeSlantKill = (
   allBoxes,
   fromBox,
@@ -152,15 +204,30 @@ export const canKingMakeSlantKill = (
   const boxDifference = Math.abs(toBox.boxNumber - fromBox.boxNumber);
   let boxAddOn = boxDifference % 11 === 0 ? 11 : 9;
   boxAddOn = fromBox.boxNumber > toBox.boxNumber ? -boxAddOn : boxAddOn;
-  copyOfAllBoxes[middleBox.boxNumber - boxAddOn].isFilled = true;
-  copyOfAllBoxes[middleBox.boxNumber - boxAddOn].piece = middleBox.piece;
+  copyOfAllBoxes[middleBox.boxNumber].isFilled = false;
+  copyOfAllBoxes[middleBox.boxNumber].piece = null;
+  copyOfAllBoxes[fromBox.boxNumber].piece = null;
+  copyOfAllBoxes[fromBox.boxNumber].isFilled = false;
   for (let i = middleBox.boxNumber + boxAddOn; ; i += boxAddOn) {
     if (i <= 0 || i >= 100) break;
     const box = getBoxByNumber(i, copyOfAllBoxes);
     if (box.isFilled) break;
     copyOfAllBoxes[i].piece = fromBox.piece;
     copyOfAllBoxes[i].isFilled = true;
-    if (checkIfPiecesCanKill(copyOfAllBoxes, turn)) return true;
+    // console.log("copyOfAllBoxes", copyOfAllBoxes);
+    if (checkIfPiecesCanKill(copyOfAllBoxes, turn)) {
+      const pieceCanStillKill = getBoxesWithPieceThatCanKill(
+        copyOfAllBoxes,
+        turn
+      ).some((aBox) => aBox.boxNumber === box.boxNumber);
+      // console.log(
+      //   "pieceCanStillKill",
+      //   getBoxesWithPieceThatCanKill(copyOfAllBoxes, turn)
+      // );
+      if (pieceCanStillKill) return true;
+    }
+    copyOfAllBoxes[i].piece = null;
+    copyOfAllBoxes[i].isFilled = false;
     if (i % 10 === 0 || i % 9 === 0) break;
   }
   return false;
@@ -178,19 +245,35 @@ export const getSlantKillPositions = (
   let boxAddOn = boxDifference % 11 === 0 ? 11 : 9;
   boxAddOn = fromBox.boxNumber > toBox.boxNumber ? -boxAddOn : boxAddOn;
   const slantKillPositions = [];
-  copyOfAllBoxes[middleBox.boxNumber - boxAddOn].isFilled = true;
-  copyOfAllBoxes[middleBox.boxNumber - boxAddOn].piece = middleBox.piece;
+  copyOfAllBoxes[middleBox.boxNumber].isFilled = false;
+  copyOfAllBoxes[middleBox.boxNumber].piece = null;
+  copyOfAllBoxes[fromBox.boxNumber].piece = null;
+  copyOfAllBoxes[fromBox.boxNumber].isFilled = false;
   for (let i = middleBox.boxNumber + boxAddOn; ; i += boxAddOn) {
     if (i <= 0 || i >= 100) break;
     const box = getBoxByNumber(i, copyOfAllBoxes);
     if (box.isFilled) break;
     copyOfAllBoxes[i].piece = fromBox.piece;
     copyOfAllBoxes[i].isFilled = true;
-    if (checkIfPiecesCanKill(copyOfAllBoxes, turn))
-      slantKillPositions.push(box);
+    if (checkIfPiecesCanKill(copyOfAllBoxes, turn)) {
+      const pieceCanStillKill = getBoxesWithPieceThatCanKill(
+        copyOfAllBoxes,
+        turn
+      ).some((aBox) => aBox.boxNumber === box.boxNumber);
+      if (pieceCanStillKill) slantKillPositions.push(box);
+    }
     copyOfAllBoxes[i].piece = null;
     copyOfAllBoxes[i].isFilled = false;
     if (i % 10 === 0 || i % 9 === 0) break;
   }
+  // console.log("slantKillPositions", slantKillPositions);
   return slantKillPositions;
+};
+
+export const getAIMiddleBox = (fromBox, toBox, allBoxes) => {
+  const boxDifference = getBoxDifference(fromBox, toBox);
+  const boxAddOn = getBoxAddOn(boxDifference);
+  if (fromBox.piece.pieceType === "REGULAR")
+    return getMiddleBox(fromBox, toBox, allBoxes);
+  return getMiddleBoxForKingKill(fromBox, toBox, boxAddOn, allBoxes);
 };

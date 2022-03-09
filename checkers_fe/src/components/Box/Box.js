@@ -26,8 +26,6 @@ import {
   isRegularKillMove,
   isKingMove,
   isKingKill,
-  canKingMakeSlantKill,
-  getSlantKillPositions,
 } from "../../utils/moveFunctions";
 
 const Box = ({ index }) => {
@@ -100,30 +98,9 @@ const Box = ({ index }) => {
   };
 
   const handleKingKill = (fromBox, box, allBoxes) => {
-    const validKingKill = isKingKill(fromBox, box, allBoxes);
-    if (validKingKill.valid) {
-      const slantKillPossible = canKingMakeSlantKill(
-        allBoxes,
-        fromBox,
-        box,
-        validKingKill.middleBox,
-        turn
-      );
-      if (slantKillPossible) {
-        const slantKillPositions = getSlantKillPositions(
-          allBoxes,
-          fromBox,
-          box,
-          validKingKill.middleBox,
-          turn
-        );
-        const validMove = slantKillPositions.some(
-          (aBox) => aBox.boxNumber === box.boxNumber
-        );
-        if (!validMove) return;
-      }
+    const validKingKill = isKingKill(fromBox, box, allBoxes, turn, true);
+    if (validKingKill.valid)
       makeMove(clickedPiece, fromBox, validKingKill.middleBox, box, "KILL");
-    }
   };
 
   const makeMove = (

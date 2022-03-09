@@ -1,4 +1,9 @@
-import { isKingKill, isRegularKillMove } from "./moveFunctions";
+import {
+  getAIMiddleBox,
+  getMiddleBox,
+  isKingKill,
+  isRegularKillMove,
+} from "./moveFunctions";
 
 export const getLeftDimension = (index) => {
   return index % 10;
@@ -54,11 +59,13 @@ export const getBoxByNumber = (boxNumber, allBoxes) => {
   return box;
 };
 
-export const checkIfPiecesCanKill = (allBoxes, turn) => {
+export const checkIfPiecesCanKill = (allBoxes, turn, checkSlant = false) => {
   for (let i = 0; i < allBoxes.length; i++) {
     const box = allBoxes[i];
+    // if (box.boxNumber === 35) console.log("got here 1");
     if (!box.isFilled) continue;
     if (box.piece.pieceColor !== turn) continue;
+    // if (box.boxNumber === 35) console.log("got here 2");
     for (let j = 0; j < allBoxes.length; j++) {
       const aBox = allBoxes[j];
       if (aBox.isFilled) continue;
@@ -67,7 +74,7 @@ export const checkIfPiecesCanKill = (allBoxes, turn) => {
         const regularMove = isRegularKillMove(box, aBox, allBoxes);
         if (regularMove.valid) return true;
       } else {
-        const kingMove = isKingKill(box, aBox, allBoxes);
+        const kingMove = isKingKill(box, aBox, allBoxes, turn, checkSlant);
         if (kingMove.valid) return true;
       }
     }
@@ -118,4 +125,11 @@ export const isPieceInKingPosition = (piece) => {
 
 export const getNextTurn = (turn) => {
   return turn === "WHITE" ? "GREEN" : "WHITE";
+};
+
+export const getAllMiddleBoxes = (trends, allBoxes) => {
+  const middleBoxes = trends.map((move) => {
+    return getAIMiddleBox(move.box, move.toBox, allBoxes);
+  });
+  return middleBoxes;
 };
