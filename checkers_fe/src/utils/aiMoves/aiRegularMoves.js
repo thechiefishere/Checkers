@@ -7,6 +7,7 @@ import {
   getAIMiddleBox,
   isRegularKillMove,
   isRegularMove,
+  pieceIsClosingRanks,
 } from "../moveFunctions";
 import { getKingPieceValidMoves, getKingPieceValidKills } from "./aiKingMoves";
 
@@ -29,13 +30,11 @@ export const calculateMove = (
 ) => {
   const copyOfAllBoxes = JSON.parse(JSON.stringify(allBoxes));
   const piecesCanKill = checkIfPiecesCanKill(copyOfAllBoxes, turn);
-  //   console.log("piecesCanKill", piecesCanKill);
   if (piecesCanKill) {
     const piecesThatCanKill = getBoxesWithPieceThatCanKill(
       copyOfAllBoxes,
       turn
     );
-    // console.log("piecesThatCanKill", piecesThatCanKill);
     const bestMove = whenKillIsPossible(
       copyOfAllBoxes,
       turn,
@@ -43,14 +42,11 @@ export const calculateMove = (
       fromBox,
       multiKill
     );
-    // console.log("bestMove", bestMove);
     return bestMove;
   } else {
     const bestMove = noPossibleKill(copyOfAllBoxes, turn, callNumber);
     return bestMove;
   }
-  //   const bestMove = noPossibleKill(copyOfAllBoxes, turn, callNumber);
-  //   return bestMove;
 };
 
 const whenKillIsPossible = (
@@ -60,16 +56,12 @@ const whenKillIsPossible = (
   fromBox,
   multiKill
 ) => {
-  //   console.log("in whenKillIsPossible");
   const piecesThatCanKill = getBoxesWithPieceThatCanKill(copyOfAllBoxes, turn);
-  // console.log("piecesThatCanKill", piecesThatCanKill);
   for (let i = 0; i < piecesThatCanKill.length; i++) {
     if (callNumber === 1 && i === 0) ratingsForAiFirstMoves = [];
     const box = piecesThatCanKill[i];
     if (multiKill && fromBox !== box.boxNumber) continue;
     const validKills = getPieceValidKills(box, copyOfAllBoxes, turn);
-    // console.log("box", box);
-    // console.log("validKills", validKills);
     validMovesCount += validKills.length;
     validKills.forEach((toBox) => {
       validMovesCount--;
@@ -77,8 +69,7 @@ const whenKillIsPossible = (
       if (validMovesCount === 0) allAiKillTrends = [];
     });
     if (callNumber === 1 && i === piecesThatCanKill.length - 1) {
-      // console.log("ratingsForAiFirstMoves", ratingsForAiFirstMoves);
-      return getBestMove(ratingsForAiFirstMoves);
+      return getBestMove(ratingsForAiFirstMoves, copyOfAllBoxes);
     }
   }
 };
@@ -86,22 +77,19 @@ const whenKillIsPossible = (
 const noPossibleKill = (copyOfAllBoxes, turn, callNumber) => {
   for (let i = 0; i < copyOfAllBoxes.length; i++) {
     const box = copyOfAllBoxes[i];
-    // console.log("i is ", i);
-    // console.log("box before passed checks", box);
     if (callNumber === 1 && box.boxNumber === 0) ratingsForAiFirstMoves = [];
     const passedChecks = initialChecksPass(copyOfAllBoxes, box, turn);
     if (!passedChecks) {
       if (callNumber === 1 && box.boxNumber === 99)
-        return getBestMove(ratingsForAiFirstMoves);
+        return getBestMove(ratingsForAiFirstMoves, copyOfAllBoxes);
       continue;
     }
-    // console.log("box after passed checks", box);
     const validMoves = getPieceValidMoves(box, copyOfAllBoxes);
     validMoves.forEach((toBox) => {
       tryValidMove(box, toBox, copyOfAllBoxes, turn, callNumber);
     });
     if (callNumber === 1 && box.boxNumber === 99)
-      return getBestMove(ratingsForAiFirstMoves);
+      return getBestMove(ratingsForAiFirstMoves, copyOfAllBoxes);
   }
 };
 
@@ -160,11 +148,9 @@ const tryValidMove = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
   const fakedBoxes = fakeTheBoxes(box, toBox, null, copyOfAllBoxes);
   const nextTurn = getNextTurn(turn);
   if (callNumber === 1) {
-    // console.log("++++++call 1 box in move", box);
-    // console.log("++++++call 1 toBox in move", toBox);
     calculateMove(fakedBoxes, nextTurn, 2);
     if (ratingsForPlayerFirstCounter) {
-      const rating = getAiBestRating(ratingsForPlayerFirstCounter);
+      const rating = getPlayerBestRating(ratingsForPlayerFirstCounter);
       aiMoveRating = {
         trend: [{ box, toBox }],
         rating,
@@ -172,56 +158,35 @@ const tryValidMove = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
       };
       ratingsForPlayerFirstCounter = [];
       ratingsForAiFirstMoves.push(aiMoveRating);
-      // console.log("++++++call 1 in move");
-      // console.log("++++++aiMoveRating", aiMoveRating);
     }
   }
   if (callNumber === 2) {
-    // console.log("call 2 box in move", box);
-    // console.log("call 2 toBox in move", toBox);
     calculateMove(fakedBoxes, nextTurn, 3);
     if (ratingsForSecondAIMoves) {
-      const playerBestRating = getPlayerBestRating(ratingsForSecondAIMoves);
+      const playerBestRating = getAiBestRating(ratingsForSecondAIMoves);
       ratingsForPlayerFirstCounter.push(playerBestRating);
       ratingsForSecondAIMoves = [];
-      // console.log("call 2 in move");
-      // console.log("ratingsForPlayerFirstCounter", ratingsForPlayerFirstCounter);
     }
   }
   if (callNumber === 3) {
-    // console.log("=====call 3 box in move", box);
-    // console.log("=====call 3 toBox in move", toBox);
-    const rating = calculateRating(fakedBoxes, nextTurn);
-    ratingsForSecondAIMoves.push(rating);
-
     calculateMove(fakedBoxes, nextTurn, 4);
     if (ratingsForPlayerSecondCounter) {
-      const aiBestRating = getAiBestRating(ratingsForPlayerSecondCounter);
+      const aiBestRating = getPlayerBestRating(ratingsForPlayerSecondCounter);
       ratingsForSecondAIMoves.push(aiBestRating);
       ratingsForPlayerSecondCounter = [];
     }
-    // console.log("======call 3 in move");
-    // console.log("======ratingsForSecondAIMoves", ratingsForSecondAIMoves);
   }
   if (callNumber === 4) {
-    // console.log("call 4 box in move", box);
-    // console.log("call 4 toBox in move", toBox);
     calculateMove(fakedBoxes, nextTurn, 5);
     if (ratingsForThirdAIMoves) {
       const playerBestRating = getPlayerBestRating(ratingsForThirdAIMoves);
       ratingsForPlayerSecondCounter.push(playerBestRating);
       ratingsForThirdAIMoves = [];
-      // console.log("call 4 in move");
-      // console.log("ratingsForPlayerFirstCounter", ratingsForPlayerFirstCounter);
     }
   }
   if (callNumber === 5) {
-    // console.log("=====call 5 box in move", box);
-    // console.log("=====call 5 toBox in move", toBox);
     const rating = calculateRating(fakedBoxes, nextTurn);
     ratingsForThirdAIMoves.push(rating);
-    // console.log("======call 5 in move");
-    // console.log("======ratingsForSecondAIMoves", ratingsForSecondAIMoves);
   }
 };
 
@@ -230,10 +195,7 @@ const tryValidKill = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
   const fakedBoxes = fakeTheBoxes(box, toBox, middleBox, copyOfAllBoxes);
   const nextTurn = getNextTurn(turn);
   if (callNumber === 1) {
-    // console.log("...................call 1 box in kill", box);
-    // console.log("...................call 1 toBox in kill", toBox);
     const pieceCanStillKill = turnCanMakeMultipleKills(toBox, fakedBoxes, turn);
-    // console.log("pieceCanStillKill", pieceCanStillKill);
     if (pieceCanStillKill) {
       allAiKillTrends.push({ box, toBox });
       calculateMove(fakedBoxes, turn, 1, toBox.boxNumber, true);
@@ -243,42 +205,30 @@ const tryValidKill = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
       calculateMove(fakedBoxes, nextTurn, 2);
     }
     if (ratingsForPlayerFirstCounter) {
-      const rating = getAiBestRating(ratingsForPlayerFirstCounter);
+      const rating = getPlayerBestRating(ratingsForPlayerFirstCounter);
       aiMoveRating = {
         trend: [...killTrend],
         rating,
         moveType: "REGULAR KILL",
       };
       killTrend = [];
-      ratingsForPlayerFirstCounter = [];
       ratingsForAiFirstMoves.push(aiMoveRating);
-      // console.log("...................call 1 in kill");
-      // console.log("...................aiMoveRating", aiMoveRating);
-      // console.log("...................box in call 1", box);
-      // console.log("...................toBox in call 1", toBox);
+      ratingsForPlayerFirstCounter = [];
     }
   }
   if (callNumber === 2) {
-    // console.log("call 2 box in kill", box);
-    // console.log("call 2 toBox in kill", toBox);
     const pieceCanStillKill = turnCanMakeMultipleKills(toBox, fakedBoxes, turn);
     if (pieceCanStillKill) {
       calculateMove(fakedBoxes, turn, 2, toBox.boxNumber, true);
       return;
     } else calculateMove(fakedBoxes, nextTurn, 3);
     if (ratingsForSecondAIMoves) {
-      const playerBestRating = getPlayerBestRating(ratingsForSecondAIMoves);
+      const playerBestRating = getAiBestRating(ratingsForSecondAIMoves);
       ratingsForPlayerFirstCounter.push(playerBestRating);
       ratingsForSecondAIMoves = [];
-      // console.log("call 2 in kill");
-      // console.log("ratingsForPlayerFirstCounter", ratingsForPlayerFirstCounter);
-      // console.log("box in call 2", box);
-      // console.log("toBox in call 2", toBox);
     }
   }
   if (callNumber === 3) {
-    // console.log("------call 3 box in kill", box);
-    // console.log("------call 3 toBox in kill", toBox);
     const pieceCanStillKill = turnCanMakeMultipleKills(toBox, fakedBoxes, turn);
     if (pieceCanStillKill) {
       calculateMove(fakedBoxes, turn, 3, toBox.boxNumber, true);
@@ -288,19 +238,9 @@ const tryValidKill = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
       const aiBestRating = getPlayerBestRating(ratingsForPlayerSecondCounter);
       ratingsForSecondAIMoves.push(aiBestRating);
       ratingsForPlayerSecondCounter = [];
-      // console.log("call 2 in kill");
-      // console.log("ratingsForPlayerSecondCounter", ratingsForPlayerSecondCounter);
-      // console.log("box in call 2", box);
-      // console.log("toBox in call 2", toBox);
     }
-    // console.log("------call 3 in kill");
-    // console.log("------ratingsForSecondAIMoves", ratingsForSecondAIMoves);
-    // console.log("------box in call 3", box);
-    // console.log("------toBox in call 3", toBox);
   }
   if (callNumber === 4) {
-    // console.log("call 4 box in kill", box);
-    // console.log("call 4 toBox in kill", toBox);
     const pieceCanStillKill = turnCanMakeMultipleKills(toBox, fakedBoxes, turn);
     if (pieceCanStillKill) {
       calculateMove(fakedBoxes, turn, 4, toBox.boxNumber, true);
@@ -310,15 +250,9 @@ const tryValidKill = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
       const playerBestRating = getPlayerBestRating(ratingsForThirdAIMoves);
       ratingsForPlayerSecondCounter.push(playerBestRating);
       ratingsForThirdAIMoves = [];
-      // console.log("call 2 in kill");
-      // console.log("ratingsForPlayerSecondCounter", ratingsForPlayerSecondCounter);
-      // console.log("box in call 2", box);
-      // console.log("toBox in call 2", toBox);
     }
   }
   if (callNumber === 5) {
-    // console.log("------call 3 box in kill", box);
-    // console.log("------call 3 toBox in kill", toBox);
     const pieceCanStillKill = turnCanMakeMultipleKills(toBox, fakedBoxes, turn);
     if (pieceCanStillKill) {
       calculateMove(fakedBoxes, turn, 5, toBox.boxNumber, true);
@@ -326,20 +260,14 @@ const tryValidKill = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
     }
     const rating = calculateRating(fakedBoxes, nextTurn);
     ratingsForThirdAIMoves.push(rating);
-    // console.log("------call 5 in kill");
-    // console.log("------ratingsForSecondAIMoves", ratingsForSecondAIMoves);
-    // console.log("------box in call 5", box);
-    // console.log("------toBox in call 5", toBox);
   }
 };
 
 const turnCanMakeMultipleKills = (toBox, fakedBoxes, turn) => {
-  // console.log("fakedBoxes", fakedBoxes);
   let pieceCanStillKill = false;
   const piecesCanKill = checkIfPiecesCanKill(fakedBoxes, turn);
   if (piecesCanKill) {
     const piecesThatCanKill = getBoxesWithPieceThatCanKill(fakedBoxes, turn);
-    // console.log("piecesThatCanKill", piecesThatCanKill);
     pieceCanStillKill = piecesThatCanKill.some(
       (aBox) => aBox.boxNumber === toBox.boxNumber
     );
@@ -363,10 +291,10 @@ const getPlayerBestRating = (ratingsForSecondAIMoves) => {
 };
 
 const getAiBestRating = (playerBestRating) => {
-  const aiBestRating = playerBestRating[0];
+  let aiBestRating = playerBestRating[0];
   playerBestRating.forEach((val) => {
     if (val < aiBestRating) {
-      playerBestRating = val;
+      aiBestRating = val;
     }
   });
   return aiBestRating;
@@ -400,16 +328,15 @@ const fakeTheBoxes = (box, toBox, middleBox = null, copyOfAllBoxes) => {
   return fakedBoxes;
 };
 
-const getBestMove = (ratingsForAiFirstMoves) => {
+const getBestMove = (ratingsForAiFirstMoves, copyOfAllBoxes) => {
   const lowestRating = getLowestRating(ratingsForAiFirstMoves);
   const bestMoves = ratingsForAiFirstMoves.filter(
     (move) => move.rating === lowestRating
   );
-  const random = Math.floor(Math.random() * bestMoves.length);
-  return bestMoves[random];
-  // const closestToCrown = getMovesThatAreClosestToCrown(bestMoves);
-  // const random = Math.floor(Math.random() * closestToCrown.length);
-  // return closestToCrown[random];
+  let safestMoves = getSafestMoves(bestMoves, copyOfAllBoxes);
+  if (safestMoves.length === 0) safestMoves = bestMoves;
+  const random = Math.floor(Math.random() * safestMoves.length);
+  return safestMoves[random];
 };
 
 const getLowestRating = (ratingsForAiFirstMoves) => {
@@ -421,30 +348,15 @@ const getLowestRating = (ratingsForAiFirstMoves) => {
   return lowestRating;
 };
 
-const getMovesThatAreClosestToCrown = (bestMoves) => {
-  const leastDistanceToCrown = getLeastDistanceToCrown(bestMoves);
-  if (leastDistanceToCrown === 10) return bestMoves;
-  const closestToCrown = bestMoves.filter((move) => {
+const getSafestMoves = (bestMoves, allBoxes) => {
+  const safestMoves = bestMoves.filter((move) => {
     const { trend } = move;
+    const box = trend[trend.length - 1].box;
     const toBox = trend[trend.length - 1].toBox;
-    const distanceFromCrown = parseInt(toBox.boxNumber / 10);
-    if (distanceFromCrown === leastDistanceToCrown) return move;
+    if (toBox.boxNumber % 10 === 0 || toBox.boxNumber % 10 === 9) return move;
+    else if (toBox.boxNumber % 10 !== 0 || toBox.boxNumber % 10 !== 9) {
+      if (pieceIsClosingRanks(box, toBox, allBoxes)) return move;
+    }
   });
-  return closestToCrown;
-};
-
-const getLeastDistanceToCrown = (bestMoves) => {
-  // console.log("bestMoves", bestMoves);
-  let leastDistance = 10;
-  bestMoves.map((move) => {
-    const { trend } = move;
-    // console.log("trend", trend);
-    const boxInLastMove = trend[trend.length - 1].box;
-    const toBox = trend[trend.length - 1].toBox;
-    if (boxInLastMove.piece.pieceType !== "REGULAR") return;
-    const distanceFromCrown = parseInt(toBox.boxNumber / 10);
-    // console.log("distanceFromCrown", distanceFromCrown);
-    if (distanceFromCrown < leastDistance) leastDistance = distanceFromCrown;
-  });
-  return leastDistance;
+  return safestMoves;
 };

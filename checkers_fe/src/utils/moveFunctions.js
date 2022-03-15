@@ -266,7 +266,6 @@ export const getSlantKillPositions = (
     copyOfAllBoxes[i].isFilled = false;
     if (i % 10 === 0 || i % 9 === 0) break;
   }
-  // console.log("slantKillPositions", slantKillPositions);
   return slantKillPositions;
 };
 
@@ -276,4 +275,22 @@ export const getAIMiddleBox = (fromBox, toBox, allBoxes) => {
   if (fromBox.piece.pieceType === "REGULAR")
     return getMiddleBox(fromBox, toBox, allBoxes);
   return getMiddleBoxForKingKill(fromBox, toBox, boxAddOn, allBoxes);
+};
+
+export const pieceIsClosingRanks = (box, toBox, allBoxes) => {
+  if (box.piece.pieceType === "KING") return false;
+  if (toBox.boxNumber / 10 < 1) return true;
+  const boxOneAtTheFrontOfToBox = allBoxes[toBox.boxNumber - 9];
+  const boxTwoAtTheFrontOfToBox = allBoxes[toBox.boxNumber - 11];
+  if (
+    boxOneAtTheFrontOfToBox.isFilled &&
+    isSamePieceColor(box, boxOneAtTheFrontOfToBox)
+  )
+    return true;
+  if (
+    boxTwoAtTheFrontOfToBox.isFilled &&
+    isSamePieceColor(box, boxTwoAtTheFrontOfToBox)
+  )
+    return true;
+  return false;
 };
