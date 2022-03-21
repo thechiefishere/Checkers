@@ -1,4 +1,5 @@
 const { boxColors } = require("../constants");
+// const { checkIfPiecesCanKill } = require("./function");
 
 const isValidAtEdge = (fromBoxNumber, toBoxNumber, boxDifference) => {
   if (toBoxNumber > fromBoxNumber) {
@@ -96,8 +97,213 @@ const areMiddleBoxesEmpty = (fromBox, toBox, boxAddOn, allBoxes) => {
   return true;
 };
 
+const isKingKillMove = (fromBox, toBox, allBoxes, turn, checkSlant) => {
+  const boxDifference = getBoxDifference(fromBox, toBox);
+  if (!boxDifferencePass(fromBox, toBox, boxDifference))
+    return { valid: false, middleBox: null };
+  const boxAddOn = boxDifference % 11 === 0 ? 11 : 9;
+  const pieceCanDie = canOneMiddleBoxBeKilled(
+    fromBox,
+    toBox,
+    boxAddOn,
+    allBoxes
+  );
+
+  if (pieceCanDie) {
+    const middleBox = getMiddleBoxForKingKill(
+      fromBox,
+      toBox,
+      boxAddOn,
+      allBoxes
+    );
+    if (!checkSlant) return { valid: true, middleBox };
+    const inSlantKillPosition = isInSlantKillPosition(
+      allBoxes,
+      fromBox,
+      toBox,
+      middleBox,
+      turn
+    );
+    if (inSlantKillPosition) return { valid: true, middleBox };
+  }
+  return { valid: false, middleBox: null };
+};
+
+const canOneMiddleBoxBeKilled = (fromBox, toBox, boxAddOn, allBoxes) => {
+  boxAddOn = fromBox.boxNumber > toBox.boxNumber ? -boxAddOn : boxAddOn;
+  let filledBoxesCount = 0;
+  for (let i = fromBox.boxNumber + boxAddOn; ; ) {
+    if (i === toBox.boxNumber) break;
+    const box = allBoxes[i];
+    if (box.isFilled) {
+      if (isSamePieceColor(fromBox, box)) return false;
+      else filledBoxesCount++;
+    }
+    if (filledBoxesCount === 2) return false;
+    i += boxAddOn;
+  }
+  if (filledBoxesCount === 1) return true;
+  return false;
+};
+
+const getMiddleBoxForKingKill = (fromBox, toBox, boxAddOn, allBoxes) => {
+  boxAddOn = fromBox.boxNumber > toBox.boxNumber ? -boxAddOn : boxAddOn;
+  for (let i = fromBox.boxNumber + boxAddOn; ; ) {
+    if (i === toBox.boxNumber) break;
+    const box = allBoxes[i];
+    if (box.isFilled) return box;
+    i += boxAddOn;
+  }
+  return null;
+};
+
+const canKingMakeSlantKill = (allBoxes, fromBox, toBox, middleBox, turn) => {
+  let copyOfAllBoxes = JSON.parse(JSON.stringify(allBoxes));
+  const boxDifference = Math.abs(toBox.boxNumber - fromBox.boxNumber);
+  let boxAddOn = boxDifference % 11 === 0 ? 11 : 9;
+  boxAddOn = fromBox.boxNumber > toBox.boxNumber ? -boxAddOn : boxAddOn;
+  copyOfAllBoxes[middleBox.boxNumber].isFilled = false;
+  copyOfAllBoxes[middleBox.boxNumber].piece = null;
+  copyOfAllBoxes[fromBox.boxNumber].piece = null;
+  copyOfAllBoxes[fromBox.boxNumber].isFilled = false;
+  for (let i = middleBox.boxNumber + boxAddOn; ; i += boxAddOn) {
+    if (i <= 0 || i >= 100) break;
+    const box = copyOfAllBoxes[i];
+    if (box.isFilled) break;
+    copyOfAllBoxes[i].piece = fromBox.piece;
+    copyOfAllBoxes[i].isFilled = true;
+    // console.log("copyOfAllBoxes", copyOfAllBoxes);
+    if (checkIfPiecesCanKill(copyOfAllBoxes, turn)) {
+      const pieceCanStillKill = getBoxesWithPieceThatCanKill(
+        copyOfAllBoxes,
+        turn
+      ).some((aBox) => aBox.boxNumber === box.boxNumber);
+      // console.log(
+      //   "pieceCanStillKill",
+      //   getBoxesWithPieceThatCanKill(copyOfAllBoxes, turn)
+      // );
+      if (pieceCanStillKill) return true;
+    }
+    copyOfAllBoxes[i].piece = null;
+    copyOfAllBoxes[i].isFilled = false;
+    if (i % 10 === 0 || i % 9 === 0) break;
+  }
+  return false;
+};
+
+const isInSlantKillPosition = (allBoxes, fromBox, toBox, middleBox, turn) => {
+  const slantKillPossible = canKingMakeSlantKill(
+    allBoxes,
+    fromBox,
+    toBox,
+    middleBox,
+    turn
+  );
+  // console.log("slantKillPossible", slantKillPossible);
+  if (slantKillPossible) {
+    const slantKillPositions = getSlantKillPositions(
+      allBoxes,
+      fromBox,
+      toBox,
+      middleBox,
+      turn
+    );
+    // console.log("slantKillPositions", slantKillPositions);
+    const validMove = slantKillPositions.some(
+      (aBox) => aBox.boxNumber === toBox.boxNumber
+    );
+    if (validMove) return true;
+  } else return true;
+  return false;
+};
+
+const checkIfPiecesCanKill = (allBoxes, turn, checkSlant = false) => {
+  for (let i = 0; i < allBoxes.length; i++) {
+    const box = allBoxes[i];
+    // if (box.boxNumber === 35) console.log("got here 1");
+    if (!box.isFilled) continue;
+    if (box.piece.pieceColor !== turn) continue;
+    // if (box.boxNumber === 35) console.log("got here 2");
+    for (let j = 0; j < allBoxes.length; j++) {
+      const aBox = allBoxes[j];
+      if (aBox.isFilled) continue;
+      if (aBox.boxColor === boxColors[2]) continue;
+      if (box.piece.pieceType === "REGULAR") {
+        const regularMove = isRegularKillMove(box, aBox, allBoxes);
+        if (regularMove.valid) return true;
+      } else {
+        const kingMove = isKingKillMove(box, aBox, allBoxes, turn, checkSlant);
+        if (kingMove.valid) return true;
+      }
+    }
+  }
+  return false;
+};
+
+const getBoxesWithPieceThatCanKill = (allBoxes, turn) => {
+  let boxes = [];
+  for (let i = 0; i < allBoxes.length; i++) {
+    const box = allBoxes[i];
+    if (!box.isFilled) continue;
+    if (box.piece.pieceColor !== turn) continue;
+    for (let j = 0; j < allBoxes.length; j++) {
+      const aBox = allBoxes[j];
+      if (aBox.isFilled) continue;
+      if (box.piece.pieceType === "REGULAR") {
+        const regularMove = isRegularKillMove(box, aBox, allBoxes);
+        if (regularMove.valid) boxes.push(box);
+      } else {
+        const kingMove = isKingKillMove(box, aBox, allBoxes);
+        if (kingMove.valid) {
+          boxes.push(box);
+          break;
+        }
+      }
+    }
+  }
+  return boxes;
+};
+
+const getSlantKillPositions = (allBoxes, fromBox, toBox, middleBox, turn) => {
+  let copyOfAllBoxes = JSON.parse(JSON.stringify(allBoxes));
+  const boxDifference = Math.abs(toBox.boxNumber - fromBox.boxNumber);
+  let boxAddOn = boxDifference % 11 === 0 ? 11 : 9;
+  boxAddOn = fromBox.boxNumber > toBox.boxNumber ? -boxAddOn : boxAddOn;
+  const slantKillPositions = [];
+  copyOfAllBoxes[middleBox.boxNumber].isFilled = false;
+  copyOfAllBoxes[middleBox.boxNumber].piece = null;
+  copyOfAllBoxes[fromBox.boxNumber].piece = null;
+  copyOfAllBoxes[fromBox.boxNumber].isFilled = false;
+  for (let i = middleBox.boxNumber + boxAddOn; ; i += boxAddOn) {
+    if (i <= 0 || i >= 100) break;
+    const box = copyOfAllBoxes[i];
+    if (box.isFilled) break;
+    copyOfAllBoxes[i].piece = fromBox.piece;
+    copyOfAllBoxes[i].isFilled = true;
+    if (checkIfPiecesCanKill(copyOfAllBoxes, turn)) {
+      const pieceCanStillKill = getBoxesWithPieceThatCanKill(
+        copyOfAllBoxes,
+        turn
+      ).some((aBox) => aBox.boxNumber === box.boxNumber);
+      if (pieceCanStillKill) slantKillPositions.push(box);
+    }
+    copyOfAllBoxes[i].piece = null;
+    copyOfAllBoxes[i].isFilled = false;
+    if (i % 10 === 0 || i % 9 === 0) break;
+  }
+  return slantKillPositions;
+};
+
 const getBoxDifference = (fromBox, toBox) => {
   return Math.abs(toBox.boxNumber - fromBox.boxNumber);
 };
 
-module.exports = { isRegularMove, isRegularKillMove, getMiddleBox, isKingMove };
+module.exports = {
+  isRegularMove,
+  isRegularKillMove,
+  getMiddleBox,
+  isKingMove,
+  isKingKillMove,
+  checkIfPiecesCanKill,
+  getBoxesWithPieceThatCanKill,
+};

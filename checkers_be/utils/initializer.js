@@ -31,7 +31,7 @@ const makePiece = (index, xPosition, yPosition, pieceNumber) => {
     pieceNumber,
     index: index,
     isAlive: true,
-    pieceType: pieceTypes[1],
+    pieceType: pieceTypes[0],
     pieceDirection: index < 40 ? "DOWN" : "UP",
   };
 };

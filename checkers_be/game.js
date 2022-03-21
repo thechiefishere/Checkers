@@ -8,13 +8,14 @@ const {
   setPiecesThatMustKill,
   setIsKillMove,
   setPieceThatMadeLastKill,
-  checkIfPiecesCanKill,
-  getBoxesWithPieceThatCanKill,
 } = require("./utils/function");
 const {
   isRegularMove,
   isRegularKillMove,
   isKingMove,
+  isKingKillMove,
+  checkIfPiecesCanKill,
+  getBoxesWithPieceThatCanKill,
 } = require("./utils/moveFunctions");
 
 const handleRegularMove = (
@@ -63,7 +64,7 @@ const handleKingMove = (fromBox, box, gameState, io, moveTaken) => {
 };
 
 const handleKingKillMove = (fromBox, box, gameState, io) => {
-  const { allBoxes, clickedPiece } = gameState;
+  const { allBoxes, clickedPiece, turn } = gameState;
   const validKingKill = isKingKillMove(fromBox, box, allBoxes, turn, true);
   if (validKingKill.valid) {
     makeMove(
