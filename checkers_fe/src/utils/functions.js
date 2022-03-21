@@ -13,6 +13,12 @@ export const getTopDimension = (index) => {
   return parseInt(index / 10);
 };
 
+export const getBoardWidth = (windowWidth) => {
+  if (windowWidth >= 600) return 500;
+  const boardWidth = parseInt(windowWidth * 0.9);
+  return Math.round(boardWidth / 100) * 100;
+};
+
 export const getColorFromDimensions = (index) => {
   const leftDimension = getLeftDimension(index);
   const topDimension = getTopDimension(index);
@@ -23,9 +29,11 @@ export const getColorFromDimensions = (index) => {
   else if (topDimension % 2 !== 0 && leftDimension % 2 !== 0) return "BLACK";
 };
 
-export const validateClick = (turn, playersDetails, pieceColor) => {
-  if (!isHuman(turn, playersDetails)) return false;
-  if (isPlayersPiece(turn, playersDetails, pieceColor)) return true;
+export const validateClick = (turn, playerColor, pieceColor) => {
+  // if (!isHuman(turn, playersDetails)) return false;
+  // if (isPlayersPiece(turn, playersDetails, pieceColor)) return true;
+  // return false;
+  if (turn === playerColor && pieceColor === playerColor) return true;
   return false;
 };
 
@@ -35,17 +43,8 @@ const isHuman = (turn, playersDetails) => {
   return false;
 };
 
-const isPlayersPiece = (turn, playersDetails, pieceColor) => {
-  if (
-    playersDetails.player1Color === turn &&
-    playersDetails.player1Color === pieceColor
-  )
-    return true;
-  if (
-    playersDetails.player2Color === turn &&
-    playersDetails.player2Color === pieceColor
-  )
-    return true;
+const isPlayersPiece = (turn, playerColor, pieceColor) => {
+  if (turn === playerColor && pieceColor === playerColor) return true;
   return false;
 };
 

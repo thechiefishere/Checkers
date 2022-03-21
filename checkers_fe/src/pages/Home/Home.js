@@ -26,7 +26,7 @@ const Home = () => {
       <button
         onClick={() => {
           dispatch(updatePlayersDetails({ player2: "HUMAN" }));
-          navigate("/game");
+          navigate("/multiplayer");
         }}
         className="btn btn--home"
       >

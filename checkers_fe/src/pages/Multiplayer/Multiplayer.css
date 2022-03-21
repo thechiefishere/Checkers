@@ -1,0 +1,22 @@
+.multiplayer {
+  width: 90%;
+  margin: 15vh auto;
+  text-align: center;
+  font-size: 2em;
+  background-color: blue;
+}
+.multiplayer__heading {
+  font-size: 2em;
+  margin-bottom: 5vh;
+}
+.btn--multiplayer {
+  font-size: 1.4em;
+  margin: 30px auto;
+  color: red;
+}
+.multiplayer__input {
+  display: block;
+  margin: 30px auto;
+  width: 53%;
+  height: 60px;
+}

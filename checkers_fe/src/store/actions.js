@@ -108,3 +108,17 @@ export const setMoveMade = (isMove) => {
     payload: isMove,
   };
 };
+
+export const setGameState = (gameState) => {
+  return {
+    type: "SET_GAMESTATE",
+    payload: gameState,
+  };
+};
+
+export const setPlayerColor = (color) => {
+  return {
+    type: "SET_PLAYER_COLOR",
+    payload: color,
+  };
+};

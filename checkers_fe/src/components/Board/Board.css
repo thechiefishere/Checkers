@@ -1,11 +1,12 @@
 .board-cont {
   border: 5px solid rgb(0, 162, 255);
-  margin-top: 25vh;
+  margin: 0 auto;
+  margin-top: 20vh;
   border-radius: 5px;
+  background-color: purple;
 }
 .board {
   position: relative;
-  /* background-color: yellow; */
-  display: flex;
-  flex-wrap: wrap;
+  background-color: yellow;
+  border: 5px solid rgb(0, 162, 255);
 }
