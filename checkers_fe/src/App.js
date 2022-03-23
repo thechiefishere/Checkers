@@ -55,18 +55,18 @@ function App() {
   });
 
   // useEffect(() => {
-  //   if (
-  //     playersDetails.player2Color === turn &&
-  //     playersDetails.player2 !== "HUMAN"
-  //   )
-  //     return;
-  //   // console.log("entered turn effect");
-  //   const pieceExist = checkIfPiecesCanKill(allBoxes, turn);
-  //   if (!pieceExist) return;
-  //   const boxes = getBoxesWithPieceThatCanKill(allBoxes, turn);
-  //   // console.log("boxes with pieceThatMustKill", boxes);
-  //   const pieces = boxes.map((box) => box.piece);
-  //   dispatch(setPiecesThatMustKill(pieces));
+  // if (
+  //   playersDetails.player2Color === turn &&
+  //   playersDetails.player2 !== "HUMAN"
+  // )
+  //   return;
+  // // console.log("entered turn effect");
+  // const pieceExist = checkIfPiecesCanKill(allBoxes, turn);
+  // if (!pieceExist) return;
+  // const boxes = getBoxesWithPieceThatCanKill(allBoxes, turn);
+  // // console.log("boxes with pieceThatMustKill", boxes);
+  // const pieces = boxes.map((box) => box.piece);
+  // dispatch(setPiecesThatMustKill(pieces));
   // }, [turn]);
 
   // useEffect(() => {

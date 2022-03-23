@@ -8,6 +8,8 @@ const {
   setPiecesThatMustKill,
   setIsKillMove,
   setPieceThatMadeLastKill,
+  isPieceInKingPosition,
+  isPieceInPiecesThatMustKill,
 } = require("./utils/function");
 const {
   isRegularMove,
@@ -111,9 +113,11 @@ const moveDispatch = (clickedPiece, fromBox, box, moveType, gameState) => {
   updateBox(box, gameState);
   setClickedPiece(null, gameState);
   if (moveType === "NORMAL") {
+    confirmKingship(gameState);
     switchTurn(gameState);
     setMoveMade(true, gameState);
     setPiecesThatMustKill(null, gameState);
+    updatePiecesThatMustKill(gameState);
   } else {
     setIsKillMove(true, gameState);
     setPieceThatMadeLastKill(clickedPiece, gameState);
@@ -136,10 +140,12 @@ const checkMultipleKills = (gameState) => {
   setMoveMade(true, gameState);
   const pieceExist = checkIfPiecesCanKill(allBoxes, turn);
   if (!pieceExist) {
+    setPiecesThatMustKill(null, gameState);
+    confirmKingship(gameState);
     switchTurn(gameState);
     setIsKillMove(false, gameState);
     setPieceThatMadeLastKill(null, gameState);
-    setPiecesThatMustKill(null, gameState);
+    updatePiecesThatMustKill(gameState);
     return;
   }
   const boxes = getBoxesWithPieceThatCanKill(allBoxes, turn);
@@ -152,10 +158,40 @@ const checkMultipleKills = (gameState) => {
     setIsKillMove(false, gameState);
     setPieceThatMadeLastKill(null, gameState);
   } else {
+    confirmKingship(gameState);
     switchTurn(gameState);
+    updatePiecesThatMustKill(gameState);
     setIsKillMove(false, gameState);
     setPieceThatMadeLastKill(null, gameState);
   }
+};
+
+const updatePiecesThatMustKill = (gameState) => {
+  const { allBoxes, turn } = gameState;
+  // if (
+  //   playersDetails.player2Color === turn &&
+  //   playersDetails.player2 !== "HUMAN"
+  // )
+  //   return;
+  // console.log("entered turn effect");
+  const pieceExist = checkIfPiecesCanKill(allBoxes, turn);
+  if (!pieceExist) return;
+  const boxes = getBoxesWithPieceThatCanKill(allBoxes, turn);
+  const pieces = boxes.map((box) => box.piece);
+  setPiecesThatMustKill(pieces, gameState);
+};
+
+const confirmKingship = (gameState) => {
+  const { pieceThatMovedLast, piecesThatMustKill } = gameState;
+  const isInKingPosition = isPieceInKingPosition(pieceThatMovedLast);
+  if (!isInKingPosition) return;
+  const pieceIsIn = isPieceInPiecesThatMustKill(
+    pieceThatMovedLast,
+    piecesThatMustKill
+  );
+  if (pieceIsIn) return;
+  pieceThatMovedLast.pieceType = "KING";
+  updatePiece(pieceThatMovedLast, gameState);
 };
 
 module.exports = {

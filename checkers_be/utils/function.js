@@ -9,7 +9,7 @@ const updateBox = (box, gameState) => {
 };
 
 const setPieceThatMovedLast = (piece, gameState) => {
-  gameState.pieceThatMovesLast = piece;
+  gameState.pieceThatMovedLast = piece;
 };
 
 const setClickedPiece = (piece, gameState) => {
@@ -38,6 +38,23 @@ const setPieceThatMadeLastKill = (piece, gameState) => {
   gameState.pieceThatMadeLastKill = piece;
 };
 
+const isPieceInPiecesThatMustKill = (piece, piecesThatMustKill) => {
+  if (!piecesThatMustKill || !piece) return false;
+  const pieceIsIn = piecesThatMustKill.some(
+    (aPiece) => aPiece.pieceNumber === piece.pieceNumber
+  );
+  if (pieceIsIn) return true;
+  return false;
+};
+
+const isPieceInKingPosition = (piece) => {
+  if (!piece) return false;
+  const isWhitePieceAKing = piece.pieceNumber < 20 && piece.index > 89;
+  const isGreenPieceAKing = piece.pieceNumber > 20 && piece.index < 10;
+  if (isWhitePieceAKing || isGreenPieceAKing) return true;
+  return false;
+};
+
 module.exports = {
   updatePiece,
   updateBox,
@@ -48,4 +65,6 @@ module.exports = {
   setPiecesThatMustKill,
   setIsKillMove,
   setPieceThatMadeLastKill,
+  isPieceInPiecesThatMustKill,
+  isPieceInKingPosition,
 };

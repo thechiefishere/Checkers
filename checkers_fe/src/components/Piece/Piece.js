@@ -96,11 +96,11 @@ const Piece = ({ piece, boardWidth }) => {
   const handlePieceClick = () => {
     const validClick = validateClick(turn, playerColor, pieceColor);
     if (!validClick) return;
-    socket.emit("clicked-piece", piece);
-    // if (piecesThatMustKill) {
-    //   const pieceIsIn = isPieceInPiecesThatMustKill(piece, piecesThatMustKill);
-    //   if (pieceIsIn) dispatch(setClickedPiece(piece));
-    // } else dispatch(setClickedPiece(piece));
+    if (piecesThatMustKill) {
+      console.log("piecesThatMustKill", piecesThatMustKill);
+      const pieceIsIn = isPieceInPiecesThatMustKill(piece, piecesThatMustKill);
+      if (pieceIsIn) socket.emit("clicked-piece", piece);
+    } else socket.emit("clicked-piece", piece);
   };
 
   // const confirmKingship = () => {

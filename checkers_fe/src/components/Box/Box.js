@@ -49,34 +49,11 @@ const Box = ({ box, boardWidth }) => {
   const socket = useSelector((state) => state.socket);
   const { clickedPiece, allBoxes } = gameState;
 
-  let moveTaken = false;
-
-  // useEffect(() => {
-  //   const left = getLeftDimension(index);
-  //   const top = getTopDimension(index);
-  //   const color = getColorFromDimensions(index);
-  //   const filled =
-  //     (index < 40 || index > 59) && color !== "YELLOW" ? true : false;
-  //   setBoxColor(color);
-  //   const box = { boxNumber, left, top, isFilled: filled, boxColor: color };
-  //   dispatch(addBox(box));
-  // }, []);
-
-  // useEffect(() => {
-  //   if (allPiece.length !== 40 || allBoxPieceSet) return;
-  //   const piece = getPieceByNumber(index, allPiece);
-  //   const box = getBoxByNumber(index, allBoxes);
-  //   if (!box || !piece) return;
-  //   box.piece = piece;
-  //   dispatch(updateBox(box));
-  // }, [allPiece]);
-
   const handleBoxClick = () => {
     if (clickedPiece === null || boxColor === "YELLOW") return;
     // const box = getBoxByNumber(index, allBoxes);
     if (box.isFilled) return;
     const fromBox = allBoxes[clickedPiece.index];
-    // dispatch(setClickedBox(box));
     if (clickedPiece.pieceType === "REGULAR") {
       socket.emit(
         "handle-regular-move",
