@@ -55,6 +55,18 @@ const isPieceInKingPosition = (piece) => {
   return false;
 };
 
+const generateRandomRoomId = () => {
+  const possibleValues =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ12345abcdefghijklmnopqrstuvwxyz67890";
+  let roomId = "";
+  for (let i = 0; i < 7; i++) {
+    const random = Math.random() * possibleValues.length;
+    roomId += possibleValues.charAt(random);
+  }
+  console.log("roomId", roomId);
+  return roomId;
+};
+
 module.exports = {
   updatePiece,
   updateBox,
@@ -67,4 +79,5 @@ module.exports = {
   setPieceThatMadeLastKill,
   isPieceInPiecesThatMustKill,
   isPieceInKingPosition,
+  generateRandomRoomId,
 };

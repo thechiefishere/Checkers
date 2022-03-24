@@ -80,7 +80,20 @@ const getBoxPiece = (index) => {
   return piece || null;
 };
 
-let allPiece = getAllPieces();
-let allBoxes = getAllBoxes();
+const allPiece = getAllPieces();
+const allBoxes = getAllBoxes();
 
-module.exports = { allPiece, allBoxes };
+const initialGameState = {
+  allPiece: allPiece,
+  allBoxes: allBoxes,
+  turn: pieceColors[0],
+  clickedPiece: null,
+  clickedBox: null,
+  piecesThatMustKill: null,
+  isKillMove: false,
+  pieceThatMadeLastKill: null,
+  pieceThatMovedLast: null,
+  moveMade: false,
+};
+
+module.exports = { initialGameState };

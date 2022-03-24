@@ -10,6 +10,7 @@ const {
   setPieceThatMadeLastKill,
   isPieceInKingPosition,
   isPieceInPiecesThatMustKill,
+  generateRandomRoomId,
 } = require("./utils/function");
 const {
   isRegularMove,
@@ -19,6 +20,66 @@ const {
   checkIfPiecesCanKill,
   getBoxesWithPieceThatCanKill,
 } = require("./utils/moveFunctions");
+
+const Piece = require("./models/Piece");
+const Box = require("./models/Box");
+const GameState = require("./models/GameState");
+const Lobby = require("./models/Lobby");
+
+const { initialGameState } = require("./utils/initializer");
+
+const createNewLobby = async () => {
+  const aLobby = {
+    gameState: await createGameState(initialGameState),
+    roomId: generateRandomRoomId(),
+    participant: 1,
+    gameHasStarted: false,
+  };
+  const lobby = await Lobby.create(aLobby);
+  return lobby;
+};
+
+const createPiece = async (piece) => {
+  const aPiece = await Piece.create(piece);
+  return aPiece._id;
+};
+
+const createBox = async (box) => {
+  const aPiece = await Piece.findOne({ index: box.boxNumber });
+  if (aPiece) box.piece = aPiece;
+  box = await Box.create(box);
+  return box._id;
+};
+
+const createGameState = async (initialGameState) => {
+  const { allPiece, allBoxes } = initialGameState;
+  let arrayOfAllPiece = allPiece.map(async (piece) => await createPiece(piece));
+  let arrayOfBoxes = allBoxes.map(async (box) => await createBox(box));
+  arrayOfAllPiece = await Promise.all(arrayOfAllPiece);
+  arrayOfBoxes = await Promise.all(arrayOfBoxes);
+  const state = {
+    ...initialGameState,
+    allPiece: arrayOfAllPiece,
+    allBoxes: arrayOfBoxes,
+  };
+  const gameState = await GameState.create(state);
+  return gameState._id;
+};
+
+const getLobbyWithRoomId = async (roomId) => {
+  const lobby = await Lobby.find({ roomId });
+  return lobby;
+};
+
+const updateLobby = async (roomId) => {
+  const lobby = await Lobby.findOneAndUpdate(
+    { roomId },
+    { participant: 2, gameHasStarted: true },
+    { new: true }
+  );
+  console.log("lobby", lobby);
+  // return lobby;
+};
 
 const handleRegularMove = (
   fromBox,
@@ -200,4 +261,7 @@ module.exports = {
   handleRegularKillMove,
   handleKingMove,
   handleKingKillMove,
+  createNewLobby,
+  getLobbyWithRoomId,
+  updateLobby,
 };

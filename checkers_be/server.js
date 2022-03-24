@@ -1,11 +1,9 @@
-const io = require("socket.io")(8000, {
-  cors: {
-    origin: ["http://localhost:3000"],
-  },
-});
+require("dotenv").config();
+const io = require("socket.io")();
+const mongoose = require("mongoose");
+const connect = require("./db/connect_db");
+const port = 8000;
 
-const { pieceColors } = require("./constants");
-const { allBoxes, allPiece } = require("./utils/initializer");
 // const { isRegularMove, isRegularKillMove } = require("./utils/moveFunctions");
 const { setClickedPiece } = require("./utils/function");
 const {
@@ -13,40 +11,35 @@ const {
   handleRegularKillMove,
   handleKingMove,
   handleKingKillMove,
+  createNewLobby,
+  getLobbyWithRoomId,
+  updateLobby,
 } = require("./game");
 
 const lobbies = [];
-let gameState = {
-  allPiece: allPiece,
-  allBoxes: allBoxes,
-  turn: pieceColors[0],
-  clickedPiece: null,
-  clickedBox: null,
-  piecesThatMustKill: null,
-  isKillMove: false,
-  pieceThatMadeLastKill: null,
-  pieceThatMovedLast: null,
-  moveMade: false,
-};
 
 io.on("connection", (socket) => {
   console.log(socket.id);
-  socket.on("multiplayer_newgame", (msg) => {
+  socket.on("multiplayer_newgame", async (msg) => {
     console.log("You sent", msg);
-    lobbies[socket.id] = { gameState, isPlaying: false };
-    // lobbies.push(lobby);
-    // socket.broadcast.to(socket.id);
-    // io.emit("gameState", initialGameState);
+    const lobby = await createNewLobby();
+    socket.join(lobby.roomId);
+    socket.to(lobby.roomId);
   });
-  socket.on("join-game", (room) => {
-    const numOfParticipant = io.sockets.adapter.rooms[room];
-    console.log("numOfParticipant", numOfParticipant);
-    if (numOfParticipant && numOfParticipant >= 2) return;
-    socket.join(room);
+  socket.on("join-game", (roomId) => {
+    // const numOfParticipant = io.sockets.adapter.rooms[room];
+    // console.log("numOfParticipant", numOfParticipant);
+    // if (numOfParticipant && numOfParticipant >= 2) return;
+    // socket.join(room);
     // io.emit("gameState", initialGameState);
     // console.log("room", room);
+    const lobby = getLobbyWithRoomId(roomId);
+    if (!lobby || lobby.participant >= 2) return;
+    updateLobby(roomId);
+    socket.join(lobby.roomId);
+    socket.to(roomId);
   });
-  socket.emit("gameState", gameState);
+  // socket.emit("gameState", gameState);
   socket.on("clicked-piece", (piece) => {
     setClickedPiece(piece, gameState);
     io.emit("gameState", gameState);
@@ -69,3 +62,18 @@ const getGameStateFromRoomNumber = (room) => {
   const gameState = lobbies[room].gameState;
   return gameState;
 };
+
+const start = async () => {
+  try {
+    // await connect(process.env.MONGO_URI);
+    await connect("mongodb://localhost:27017/CheckersDB");
+    io.listen(8000, {
+      cors: {
+        origin: ["http://localhost:3000"],
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+start();
