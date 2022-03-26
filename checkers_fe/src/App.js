@@ -22,6 +22,7 @@ import {
   updateBox,
   updatePiece,
   setGameState,
+  setLobby,
 } from "./store/actions";
 import { calculateMove } from "./utils/aiMoves/aiRegularMoves";
 import { io } from "socket.io-client";
@@ -49,8 +50,14 @@ function App() {
   useEffect(() => {
     socket.on("gameState", (state) => {
       dispatch(setGameState(state));
-      // gameState = state;
-      // console.log("state is", state);
+    });
+  });
+
+  useEffect(() => {
+    socket.on("lobby", (lobby) => {
+      console.log("state", lobby);
+      // dispatch(setGameState(lobby.gameState));
+      dispatch(setLobby(lobby));
     });
   });
 

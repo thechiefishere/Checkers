@@ -47,7 +47,9 @@ const Box = ({ box, boardWidth }) => {
 
   const gameState = useSelector((state) => state.gameState);
   const socket = useSelector((state) => state.socket);
+  const lobby = useSelector((state) => state.lobby);
   const { clickedPiece, allBoxes } = gameState;
+  const { roomId } = lobby;
 
   const handleBoxClick = () => {
     if (clickedPiece === null || boxColor === "YELLOW") return;
@@ -59,10 +61,11 @@ const Box = ({ box, boardWidth }) => {
         "handle-regular-move",
         fromBox,
         box,
-        clickedPiece.pieceDirection
+        clickedPiece.pieceDirection,
+        roomId
       );
     } else {
-      socket.emit("handle-king-move", fromBox, box);
+      socket.emit("handle-king-move", fromBox, box, roomId);
       // handleKingMove(fromBox, box, allBoxes);
       // if (!moveTaken) handleKingKill(fromBox, box, allBoxes);
     }

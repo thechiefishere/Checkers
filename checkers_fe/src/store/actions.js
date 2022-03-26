@@ -122,3 +122,10 @@ export const setPlayerColor = (color) => {
     payload: color,
   };
 };
+
+export const setLobby = (lobby) => {
+  return {
+    type: "SET_LOBBY",
+    payload: lobby,
+  };
+};

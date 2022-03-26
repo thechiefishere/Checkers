@@ -43,8 +43,10 @@ const Piece = ({ piece, boardWidth }) => {
   const gameState = useSelector((state) => state.gameState);
   const playerColor = useSelector((state) => state.playerColor);
   const socket = useSelector((state) => state.socket);
+  const lobby = useSelector((state) => state.lobby);
 
   const { clickedPiece, turn, piecesThatMustKill } = gameState;
+  const { roomId } = lobby;
 
   // useEffect(() => {
   //   const left = getLeftDimension(index) || 0;
@@ -99,8 +101,8 @@ const Piece = ({ piece, boardWidth }) => {
     if (piecesThatMustKill) {
       console.log("piecesThatMustKill", piecesThatMustKill);
       const pieceIsIn = isPieceInPiecesThatMustKill(piece, piecesThatMustKill);
-      if (pieceIsIn) socket.emit("clicked-piece", piece);
-    } else socket.emit("clicked-piece", piece);
+      if (pieceIsIn) socket.emit("clicked-piece", piece, roomId);
+    } else socket.emit("clicked-piece", piece, roomId);
   };
 
   // const confirmKingship = () => {

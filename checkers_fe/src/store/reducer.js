@@ -54,6 +54,7 @@ socket.on("connect", () => {
 // };
 
 export const initialState = {
+  lobby: {},
   playerColor: null,
   gameState: null,
   socket: socket,
@@ -204,6 +205,12 @@ export const reducer = (state = initialState, action) => {
       return {
         ...state,
         playerColor: action.payload,
+      };
+    }
+    case "SET_LOBBY": {
+      return {
+        ...state,
+        lobby: action.payload,
       };
     }
     default:
