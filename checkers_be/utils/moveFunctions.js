@@ -48,8 +48,6 @@ const getMiddleBox = (fromBox, toBox, allBoxes) => {
 
 const isRegularKillMove = (fromBox, toBox, allBoxes) => {
   if (toBox.isFilled) return { valid: false, middleBox: null };
-  if (fromBox.boxNumber === 44 && toBox.boxNumber === 66)
-    console.log("toBox", toBox);
   const middleBox = getMiddleBox(fromBox, toBox, allBoxes);
   if (
     !middleBox ||
@@ -174,7 +172,6 @@ const canKingMakeSlantKill = (allBoxes, fromBox, toBox, middleBox, turn) => {
     if (box.isFilled) break;
     copyOfAllBoxes[i].piece = fromBox.piece;
     copyOfAllBoxes[i].isFilled = true;
-    // console.log("copyOfAllBoxes", copyOfAllBoxes);
     if (checkIfPiecesCanKill(copyOfAllBoxes, turn)) {
       const pieceCanStillKill = getBoxesWithPieceThatCanKill(
         copyOfAllBoxes,
@@ -222,22 +219,14 @@ const isInSlantKillPosition = (allBoxes, fromBox, toBox, middleBox, turn) => {
 const checkIfPiecesCanKill = (allBoxes, turn, checkSlant = false) => {
   for (let i = 0; i < allBoxes.length; i++) {
     const box = allBoxes[i];
-    // if (box.boxNumber === 44) console.log("got here 1");
     if (!box.isFilled) continue;
     if (box.piece.pieceColor !== turn) continue;
-    if (box.boxNumber === 44) console.log("got here 2");
     for (let j = 0; j < allBoxes.length; j++) {
       const aBox = allBoxes[j];
-      if (box.boxNumber === 44 && aBox.boxNumber === 66)
-        console.log("aBox filled", aBox.isFilled);
       if (aBox.isFilled) continue;
       if (aBox.boxColor === boxColors[2]) continue;
-      if (box.boxNumber === 44 && aBox.boxNumber === 66)
-        console.log("got here 3");
       if (box.piece.pieceType === "REGULAR") {
         const regularMove = isRegularKillMove(box, aBox, allBoxes);
-        if (box.boxNumber === 44 && aBox.boxNumber === 66)
-          console.log("regularMove", regularMove);
         if (regularMove.valid) return true;
       } else {
         const kingMove = isKingKillMove(box, aBox, allBoxes, turn, checkSlant);

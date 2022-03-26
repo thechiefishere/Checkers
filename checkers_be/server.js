@@ -40,8 +40,9 @@ io.on("connection", (socket) => {
   socket.on("clicked-piece", async (piece, roomId) => {
     let lobby = await getLobbyWithRoomId(roomId);
     let gameState = await getGameStateFromLobby(lobby);
-    gameState = await setClickedPiece(piece, gameState);
-    // gameState = await updateGameState(lobby.gameState, gameState);
+    setClickedPiece(piece, gameState);
+    // gameState = await setClickedPiece(piece, gameState);
+    gameState = await updateGameState(lobby.gameState, gameState);
     io.to(roomId).emit("gameState", gameState);
   });
   socket.on("handle-regular-move", async (fromBox, box, direction, roomId) => {
@@ -65,9 +66,9 @@ io.on("connection", (socket) => {
     let lobby = await getLobbyWithRoomId(roomId);
     let gameState = await getGameStateFromLobby(lobby);
     const moveTaken = { moveMade: false };
-    handleKingMove(fromBox, box, gameState, io, moveTaken);
+    handleKingMove(fromBox, box, gameState, io, moveTaken, roomId, lobby);
     if (moveTaken.moveMade) return;
-    handleKingKillMove(fromBox, box, gameState, io);
+    handleKingKillMove(fromBox, box, gameState, io, roomId, lobby);
   });
 });
 
