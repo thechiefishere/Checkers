@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 const lobbySchema = new Schema({
   gameState: {
     type: Schema.Types.ObjectId,
+    ref: "GameState",
   },
   roomId: {
     type: String,

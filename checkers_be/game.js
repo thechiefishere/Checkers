@@ -11,6 +11,7 @@ const {
   isPieceInKingPosition,
   isPieceInPiecesThatMustKill,
   generateRandomRoomId,
+  getPopulateString,
 } = require("./utils/function");
 const {
   isRegularMove,
@@ -67,8 +68,15 @@ const createGameState = async (initialGameState) => {
 };
 
 const getLobbyWithRoomId = async (roomId) => {
-  const lobby = await Lobby.find({ roomId });
+  const lobby = await Lobby.findOne({ roomId });
   return lobby;
+};
+
+const getGameStateFromLobby = async (lobby) => {
+  const gameState = await GameState.findById(lobby.gameState).populate(
+    getPopulateString()
+  );
+  return gameState;
 };
 
 const updateLobby = async (roomId) => {
@@ -77,33 +85,69 @@ const updateLobby = async (roomId) => {
     { participant: 2, gameHasStarted: true },
     { new: true }
   );
-  console.log("lobby", lobby);
-  // return lobby;
+  return lobby;
 };
 
-const handleRegularMove = (
+const updateGameState = async (gameStateId, gameState) => {
+  let update = getStateUpdate(gameState);
+  const updatedGameState = await GameState.findByIdAndUpdate(
+    gameStateId,
+    update,
+    {
+      new: true,
+    }
+  ).populate(getPopulateString());
+  return updatedGameState;
+};
+
+const getStateUpdate = (gameState) => {
+  return {
+    allPiece: gameState.allPiece,
+    allBoxes: gameState.allBoxes,
+    turn: gameState.turn,
+    clickedPiece: gameState.clickedPiece,
+    clickedBox: gameState.clickedBox,
+    piecesThatMustKill: gameState.piecesThatMustKill,
+    isKillMove: gameState.isKillMove,
+    pieceThatMadeLastKill: gameState.pieceThatMadeLastKill,
+    pieceThatMovedLast: gameState.pieceThatMovedLast,
+    moveMade: gameState.moveMade,
+  };
+};
+
+const handleRegularMove = async (
   fromBox,
   box,
   direction,
   gameState,
   io,
-  moveTaken
+  moveTaken,
+  roomId,
+  lobby
 ) => {
   const { piecesThatMustKill, clickedPiece } = gameState;
   if (piecesThatMustKill) return;
   const validRegularMove = isRegularMove(fromBox, box, direction);
   if (validRegularMove) {
     moveTaken.moveMade = true;
-    makeMove(gameState, clickedPiece, fromBox, box);
-    io.emit("gameState", gameState);
+    gameState = await makeMove(gameState, clickedPiece, fromBox, box);
+    // gameState = await updateGameState(lobby.gameState, gameState);
+    io.to(roomId).emit("gameState", gameState);
   }
 };
 
-const handleRegularKillMove = (fromBox, box, gameState, io) => {
+const handleRegularKillMove = async (
+  fromBox,
+  box,
+  gameState,
+  io,
+  roomId,
+  lobby
+) => {
   const { clickedPiece, allBoxes } = gameState;
   const validKillMove = isRegularKillMove(fromBox, box, allBoxes);
   if (validKillMove.valid) {
-    makeMove(
+    gameState = await makeMove(
       gameState,
       clickedPiece,
       fromBox,
@@ -111,7 +155,9 @@ const handleRegularKillMove = (fromBox, box, gameState, io) => {
       validKillMove.middleBox,
       "KILL"
     );
-    io.emit("gameState", gameState);
+    // console.log("gameState", gameState);
+    gameState = await updateGameState(lobby.gameState, gameState);
+    io.to(roomId).emit("gameState", gameState);
   }
 };
 
@@ -142,7 +188,7 @@ const handleKingKillMove = (fromBox, box, gameState, io) => {
   }
 };
 
-const makeMove = (
+const makeMove = async (
   gameState,
   clickedPiece,
   fromBox,
@@ -150,10 +196,16 @@ const makeMove = (
   middleBox = null,
   moveType = "NORMAL"
 ) => {
-  //   moveTaken = true;
-
   setNewStates(clickedPiece, fromBox, middleBox, box, gameState);
-  moveDispatch(clickedPiece, fromBox, box, moveType, gameState);
+  gameState = await moveDispatch(
+    clickedPiece,
+    fromBox,
+    box,
+    moveType,
+    gameState
+  );
+  // console.log("clickedPiece in makeMove", gameState.clickedPiece);
+  return gameState;
 };
 
 const setNewStates = (clickedPiece, fromBox, middleBox, box, gameState) => {
@@ -167,45 +219,54 @@ const setNewStates = (clickedPiece, fromBox, middleBox, box, gameState) => {
   if (middleBox !== null) setMiddleBoxState(middleBox, gameState);
 };
 
-const moveDispatch = (clickedPiece, fromBox, box, moveType, gameState) => {
-  updatePiece(clickedPiece, gameState);
-  setPieceThatMovedLast(clickedPiece, gameState);
-  updateBox(fromBox, gameState);
-  updateBox(box, gameState);
-  setClickedPiece(null, gameState);
+const moveDispatch = async (
+  clickedPiece,
+  fromBox,
+  box,
+  moveType,
+  gameState
+) => {
+  await updatePiece(clickedPiece);
+  gameState = await setPieceThatMovedLast(clickedPiece, gameState);
+  await updateBox(fromBox);
+  await updateBox(box);
+  gameState = await setClickedPiece(null, gameState);
   if (moveType === "NORMAL") {
     confirmKingship(gameState);
-    switchTurn(gameState);
-    setMoveMade(true, gameState);
-    setPiecesThatMustKill(null, gameState);
+    gameState = await switchTurn(gameState);
+    // console.log("turn", gameState.turn);
+    gameState = await setMoveMade(true, gameState);
+    gameState = await setPiecesThatMustKill(null, gameState);
     updatePiecesThatMustKill(gameState);
   } else {
-    setIsKillMove(true, gameState);
-    setPieceThatMadeLastKill(clickedPiece, gameState);
+    gameState = await setIsKillMove(true, gameState);
+    gameState = await setPieceThatMadeLastKill(clickedPiece, gameState);
     checkMultipleKills(gameState);
   }
+  // console.log("pieceThatMovedLast", gameState.pieceThatMovedLast);
+  return gameState;
 };
 
-const setMiddleBoxState = (middleBox, gameState) => {
+const setMiddleBoxState = async (middleBox, gameState) => {
   const pieceInMiddleBox = middleBox.piece;
   pieceInMiddleBox.isAlive = false;
   middleBox.isFilled = false;
   middleBox.piece = null;
-  updatePiece(pieceInMiddleBox, gameState);
-  updateBox(middleBox, gameState);
+  await updatePiece(pieceInMiddleBox);
+  await updateBox(middleBox);
 };
 
-const checkMultipleKills = (gameState) => {
+const checkMultipleKills = async (gameState) => {
   const { isKillMove, pieceThatMadeLastKill, allBoxes, turn } = gameState;
   if (!isKillMove || !pieceThatMadeLastKill) return;
-  setMoveMade(true, gameState);
+  gameState = await setMoveMade(true, gameState);
   const pieceExist = checkIfPiecesCanKill(allBoxes, turn);
   if (!pieceExist) {
-    setPiecesThatMustKill(null, gameState);
+    gameState = await setPiecesThatMustKill(null, gameState);
     confirmKingship(gameState);
-    switchTurn(gameState);
-    setIsKillMove(false, gameState);
-    setPieceThatMadeLastKill(null, gameState);
+    gameState = await switchTurn(gameState);
+    gameState = await setIsKillMove(false, gameState);
+    gameState = await setPieceThatMadeLastKill(null, gameState);
     updatePiecesThatMustKill(gameState);
     return;
   }
@@ -215,20 +276,21 @@ const checkMultipleKills = (gameState) => {
     (piece) => piece.pieceNumber === pieceThatMadeLastKill.pieceNumber
   );
   if (pieceIsIn) {
-    setPiecesThatMustKill([pieceThatMadeLastKill], gameState);
-    setIsKillMove(false, gameState);
-    setPieceThatMadeLastKill(null, gameState);
+    gameState = await setPiecesThatMustKill([pieceThatMadeLastKill], gameState);
+    gameState = await setIsKillMove(false, gameState);
+    gameState = await setPieceThatMadeLastKill(null, gameState);
   } else {
     confirmKingship(gameState);
-    switchTurn(gameState);
+    gameState = await switchTurn(gameState);
     updatePiecesThatMustKill(gameState);
-    setIsKillMove(false, gameState);
-    setPieceThatMadeLastKill(null, gameState);
+    gameState = await setIsKillMove(false, gameState);
+    gameState = await setPieceThatMadeLastKill(null, gameState);
   }
 };
 
-const updatePiecesThatMustKill = (gameState) => {
+const updatePiecesThatMustKill = async (gameState) => {
   const { allBoxes, turn } = gameState;
+  console.log("turn in update", turn);
   // if (
   //   playersDetails.player2Color === turn &&
   //   playersDetails.player2 !== "HUMAN"
@@ -236,13 +298,14 @@ const updatePiecesThatMustKill = (gameState) => {
   //   return;
   // console.log("entered turn effect");
   const pieceExist = checkIfPiecesCanKill(allBoxes, turn);
+  console.log("pieceExist", pieceExist);
   if (!pieceExist) return;
   const boxes = getBoxesWithPieceThatCanKill(allBoxes, turn);
   const pieces = boxes.map((box) => box.piece);
-  setPiecesThatMustKill(pieces, gameState);
+  gameState = await setPiecesThatMustKill(pieces, gameState);
 };
 
-const confirmKingship = (gameState) => {
+const confirmKingship = async (gameState) => {
   const { pieceThatMovedLast, piecesThatMustKill } = gameState;
   const isInKingPosition = isPieceInKingPosition(pieceThatMovedLast);
   if (!isInKingPosition) return;
@@ -252,7 +315,7 @@ const confirmKingship = (gameState) => {
   );
   if (pieceIsIn) return;
   pieceThatMovedLast.pieceType = "KING";
-  updatePiece(pieceThatMovedLast, gameState);
+  await updatePiece(pieceThatMovedLast);
 };
 
 module.exports = {
@@ -264,4 +327,6 @@ module.exports = {
   createNewLobby,
   getLobbyWithRoomId,
   updateLobby,
+  getGameStateFromLobby,
+  updateGameState,
 };

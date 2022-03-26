@@ -14,43 +14,56 @@ const {
   createNewLobby,
   getLobbyWithRoomId,
   updateLobby,
+  getGameStateFromLobby,
+  updateGameState,
 } = require("./game");
 
 const lobbies = [];
 
 io.on("connection", (socket) => {
-  console.log(socket.id);
   socket.on("multiplayer_newgame", async (msg) => {
-    console.log("You sent", msg);
     const lobby = await createNewLobby();
     socket.join(lobby.roomId);
-    socket.to(lobby.roomId);
+    const gameState = await getGameStateFromLobby(lobby);
+    io.to(lobby.roomId).emit("lobby", lobby);
+    io.to(lobby.roomId).emit("gameState", gameState);
   });
-  socket.on("join-game", (roomId) => {
-    // const numOfParticipant = io.sockets.adapter.rooms[room];
-    // console.log("numOfParticipant", numOfParticipant);
-    // if (numOfParticipant && numOfParticipant >= 2) return;
-    // socket.join(room);
-    // io.emit("gameState", initialGameState);
-    // console.log("room", room);
-    const lobby = getLobbyWithRoomId(roomId);
-    if (!lobby || lobby.participant >= 2) return;
-    updateLobby(roomId);
-    socket.join(lobby.roomId);
-    socket.to(roomId);
+  socket.on("join-game", async (roomId) => {
+    let lobby = await getLobbyWithRoomId(roomId);
+    if (!lobby || lobby.participant > 2) return;
+    lobby = await updateLobby(roomId);
+    socket.join(roomId);
+    const gameState = await getGameStateFromLobby(lobby);
+    io.to(roomId).emit("lobby", lobby);
+    io.to(roomId).emit("gameState", gameState);
   });
-  // socket.emit("gameState", gameState);
-  socket.on("clicked-piece", (piece) => {
-    setClickedPiece(piece, gameState);
-    io.emit("gameState", gameState);
+  socket.on("clicked-piece", async (piece, roomId) => {
+    let lobby = await getLobbyWithRoomId(roomId);
+    let gameState = await getGameStateFromLobby(lobby);
+    gameState = await setClickedPiece(piece, gameState);
+    // gameState = await updateGameState(lobby.gameState, gameState);
+    io.to(roomId).emit("gameState", gameState);
   });
-  socket.on("handle-regular-move", (fromBox, box, direction) => {
+  socket.on("handle-regular-move", async (fromBox, box, direction, roomId) => {
+    let lobby = await getLobbyWithRoomId(roomId);
+    let gameState = await getGameStateFromLobby(lobby);
     const moveTaken = { moveMade: false };
-    handleRegularMove(fromBox, box, direction, gameState, io, moveTaken);
+    handleRegularMove(
+      fromBox,
+      box,
+      direction,
+      gameState,
+      io,
+      moveTaken,
+      roomId,
+      lobby
+    );
     if (moveTaken.moveMade) return;
-    handleRegularKillMove(fromBox, box, gameState, io);
+    handleRegularKillMove(fromBox, box, gameState, io, roomId, lobby);
   });
-  socket.on("handle-king-move", (fromBox, box) => {
+  socket.on("handle-king-move", async (fromBox, box, roomId) => {
+    let lobby = await getLobbyWithRoomId(roomId);
+    let gameState = await getGameStateFromLobby(lobby);
     const moveTaken = { moveMade: false };
     handleKingMove(fromBox, box, gameState, io, moveTaken);
     if (moveTaken.moveMade) return;
@@ -58,14 +71,9 @@ io.on("connection", (socket) => {
   });
 });
 
-const getGameStateFromRoomNumber = (room) => {
-  const gameState = lobbies[room].gameState;
-  return gameState;
-};
-
 const start = async () => {
   try {
-    // await connect(process.env.MONGO_URI);
+    // await connect(process.env.MONGO_URI)
     await connect("mongodb://localhost:27017/CheckersDB");
     io.listen(8000, {
       cors: {

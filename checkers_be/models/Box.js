@@ -19,6 +19,7 @@ const boxSchema = new Schema({
   },
   piece: {
     type: Schema.Types.ObjectId,
+    ref: "Piece",
   },
 });
 

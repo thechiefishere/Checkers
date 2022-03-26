@@ -1,41 +1,116 @@
 const { pieceColors, boxColors } = require("../constants");
+const Box = require("../models/Box");
+const GameState = require("../models/GameState");
+const Piece = require("../models/Piece");
 
-const updatePiece = (piece, gameState) => {
-  gameState.allPiece[piece.pieceNumber] = piece;
+const updatePiece = async (piece) => {
+  await Piece.findByIdAndUpdate(piece._id, getPieceUpdate(piece), {
+    new: true,
+  });
 };
 
-const updateBox = (box, gameState) => {
-  gameState.allBoxes[box.boxNumber] = box;
+const getPieceUpdate = (piece) => {
+  return {
+    pieceColor: piece.pieceColor,
+    pieceNumber: piece.pieceNumber,
+    index: piece.index,
+    isAlive: piece.isAlive,
+    leftDimension: piece.leftDimension,
+    topDimension: piece.topDimension,
+    pieceDirection: piece.pieceDirection,
+    pieceType: piece.pieceType,
+  };
 };
 
-const setPieceThatMovedLast = (piece, gameState) => {
-  gameState.pieceThatMovedLast = piece;
+const updateBox = async (box) => {
+  await Box.findByIdAndUpdate(box._id, getUPdatedBox(box), {
+    new: true,
+  });
 };
 
-const setClickedPiece = (piece, gameState) => {
-  gameState.clickedPiece = piece;
+const getUPdatedBox = (box) => {
+  const update = {
+    boxColor: box.boxColor,
+    boxNumber: box.boxNumber,
+    isFilled: box.isFilled,
+    leftDimension: box.leftDimension,
+    topDimension: box.topDimension,
+    piece: box.piece,
+  };
+  // if (box.piece) update.piece = box.piece;
+  return update;
 };
 
-const setMoveMade = (isMove, gameState) => {
-  gameState.moveMade = isMove;
+const setPieceThatMovedLast = async (piece, gameState) => {
+  // gameState.pieceThatMovedLast = piece;
+  gameState = await GameState.findByIdAndUpdate(
+    gameState._id,
+    { setPieceThatMovedLast: piece },
+    { new: true }
+  ).populate(getPopulateString());
+  return gameState;
 };
 
-const switchTurn = (gameState) => {
+const setClickedPiece = async (piece, gameState) => {
+  // gameState.clickedPiece = piece;
+  gameState = await GameState.findByIdAndUpdate(
+    gameState._id,
+    { clickedPiece: piece },
+    { new: true }
+  ).populate(getPopulateString());
+  return gameState;
+};
+
+const setMoveMade = async (isMove, gameState) => {
+  // gameState.moveMade = isMove;
+  gameState = await GameState.findByIdAndUpdate(
+    gameState._id,
+    { moveMade: isMove },
+    { new: true }
+  ).populate(getPopulateString());
+  return gameState;
+};
+
+const switchTurn = async (gameState) => {
   const nextTurn =
     gameState.turn === pieceColors[0] ? pieceColors[1] : pieceColors[0];
-  gameState.turn = nextTurn;
+  // gameState.turn = nextTurn;
+  gameState = await GameState.findByIdAndUpdate(
+    gameState._id,
+    { turn: nextTurn },
+    { new: true }
+  ).populate(getPopulateString());
+  return gameState;
 };
 
-const setPiecesThatMustKill = (pieces, gameState) => {
-  gameState.piecesThatMustKill = pieces;
+const setPiecesThatMustKill = async (pieces, gameState) => {
+  // gameState.piecesThatMustKill = pieces;
+  gameState = await GameState.findByIdAndUpdate(
+    gameState._id,
+    { piecesThatMustKill: pieces },
+    { new: true }
+  ).populate(getPopulateString());
+  return gameState;
 };
 
-const setIsKillMove = (isKill, gameState) => {
-  gameState.isKillMove = isKill;
+const setIsKillMove = async (isKill, gameState) => {
+  // gameState.isKillMove = isKill;
+  gameState = await GameState.findByIdAndUpdate(
+    gameState._id,
+    { isKillMove: isKill },
+    { new: true }
+  ).populate(getPopulateString());
+  return gameState;
 };
 
-const setPieceThatMadeLastKill = (piece, gameState) => {
-  gameState.pieceThatMadeLastKill = piece;
+const setPieceThatMadeLastKill = async (piece, gameState) => {
+  // gameState.pieceThatMadeLastKill = piece;
+  gameState = await GameState.findByIdAndUpdate(
+    gameState._id,
+    { pieceThatMadeLastKill: piece },
+    { new: true }
+  ).populate(getPopulateString());
+  return gameState;
 };
 
 const isPieceInPiecesThatMustKill = (piece, piecesThatMustKill) => {
@@ -67,6 +142,10 @@ const generateRandomRoomId = () => {
   return roomId;
 };
 
+const getPopulateString = () => {
+  return "allPiece allBoxes clickedPiece clickedBox pieceThatMadeLastKill pieceThatMovedLast piecesThatMustKill";
+};
+
 module.exports = {
   updatePiece,
   updateBox,
@@ -80,4 +159,5 @@ module.exports = {
   isPieceInPiecesThatMustKill,
   isPieceInKingPosition,
   generateRandomRoomId,
+  getPopulateString,
 };
