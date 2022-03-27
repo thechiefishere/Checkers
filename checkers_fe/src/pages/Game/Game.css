@@ -1,24 +1,6 @@
 .game {
-  width: 100%;
-  margin: 0 auto;
+  text-align: center;
 }
 .game__turn {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 28%;
-  height: 6vh;
-  margin: 0 auto;
+  margin-bottom: 10vh;
 }
-.turn-color {
-  width: 35%;
-  height: 70%;
-  border-radius: 50%;
-}
-/* .btn--restart {
-  background-color: #999;
-  font-size: 1.3em;
-  margin-top: 9px;
-  padding: 3px;
-  border-radius: 5px;
-} */

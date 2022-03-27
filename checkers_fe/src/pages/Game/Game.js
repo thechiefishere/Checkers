@@ -2,20 +2,20 @@ import React from "react";
 import "./Game.css";
 import Board from "../../components/Board/Board";
 import Logo from "../../components/Logo/Logo";
-import { VscDebugRestart } from "react-icons/vsc";
 import { useSelector } from "react-redux";
 
 const Game = () => {
-  const turn = useSelector((state) => state.turn);
+  const gameState = useSelector((state) => state.gameState);
+  const playerColor = useSelector((state) => state.playerColor);
 
   return (
     <main className="game">
       <Logo />
-      <section className="game__turn">
-        <div className="turn-color" style={{ backgroundColor: turn }}></div>
-        <h3>Turn</h3>
-        {/* <VscDebugRestart className="btn--restart" /> */}
-      </section>
+      <h3 className="game__turn">
+        {gameState && playerColor === gameState.turn
+          ? "Your Turn"
+          : "Opponent's Turn"}
+      </h3>
       <Board />
     </main>
   );

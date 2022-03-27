@@ -1,6 +1,5 @@
 import React from "react";
 import "./Home.css";
-import PieceChoice from "../../components/PieceChoice/PieceChoice";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setPlayerColor } from "../../store/actions";
@@ -20,7 +19,6 @@ const Home = () => {
   return (
     <main className="home">
       <Logo />
-      <PieceChoice />
       <button
         onClick={() => {
           handleNewGameVsAi();
@@ -31,7 +29,6 @@ const Home = () => {
       </button>
       <button
         onClick={() => {
-          // dispatch(updatePlayersDetails({ player2: "HUMAN" }));
           navigate("/multiplayer");
         }}
         className="btn btn--home"
