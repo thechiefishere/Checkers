@@ -295,6 +295,36 @@ const getBoxDifference = (fromBox, toBox) => {
   return Math.abs(toBox.boxNumber - fromBox.boxNumber);
 };
 
+const getAIMiddleBox = (fromBox, toBox, allBoxes) => {
+  const boxDifference = getBoxDifference(fromBox, toBox);
+  const boxAddOn = getBoxAddOn(boxDifference);
+  if (fromBox.piece.pieceType === "REGULAR")
+    return getMiddleBox(fromBox, toBox, allBoxes);
+  return getMiddleBoxForKingKill(fromBox, toBox, boxAddOn, allBoxes);
+};
+
+const pieceIsClosingRanks = (box, toBox, allBoxes) => {
+  if (box.piece.pieceType === "KING") return false;
+  if (toBox.boxNumber / 10 < 1) return true;
+  const boxOneAtTheFrontOfToBox = allBoxes[toBox.boxNumber - 9];
+  const boxTwoAtTheFrontOfToBox = allBoxes[toBox.boxNumber - 11];
+  if (
+    boxOneAtTheFrontOfToBox.isFilled &&
+    isSamePieceColor(box, boxOneAtTheFrontOfToBox)
+  )
+    return true;
+  if (
+    boxTwoAtTheFrontOfToBox.isFilled &&
+    isSamePieceColor(box, boxTwoAtTheFrontOfToBox)
+  )
+    return true;
+  return false;
+};
+
+const getBoxAddOn = (boxDifference) => {
+  return boxDifference % 11 === 0 ? 11 : 9;
+};
+
 module.exports = {
   isRegularMove,
   isRegularKillMove,
@@ -303,4 +333,6 @@ module.exports = {
   isKingKillMove,
   checkIfPiecesCanKill,
   getBoxesWithPieceThatCanKill,
+  getAIMiddleBox,
+  pieceIsClosingRanks,
 };

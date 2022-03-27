@@ -12,32 +12,18 @@ const gameStateSchema = new Schema({
       type: Schema.Types.Mixed,
     },
   ],
-  clickedBox: {
-    type: Schema.Types.Mixed,
-  },
-  clickedPiece: {
-    type: Schema.Types.Mixed,
-  },
-  pieceThatMadeLastKill: {
-    type: Schema.Types.Mixed,
-  },
-  pieceThatMovedLast: {
-    type: Schema.Types.Mixed,
-  },
   piecesThatMustKill: [
     {
       type: Schema.Types.Mixed,
     },
   ],
-  isKillMove: {
-    type: Boolean,
-  },
-  moveMade: {
-    type: Boolean,
-  },
-  turn: {
-    type: String,
-  },
+  clickedBox: Schema.Types.Mixed,
+  clickedPiece: Schema.Types.Mixed,
+  pieceThatMadeLastKill: Schema.Types.Mixed,
+  pieceThatMovedLast: Schema.Types.Mixed,
+  isKillMove: Boolean,
+  moveMade: Boolean,
+  turn: String,
 });
 
 const GameState = mongoose.model("GameState", gameStateSchema);

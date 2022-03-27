@@ -11,7 +11,7 @@ const Multiplayer = () => {
   const dispatch = useDispatch();
 
   const handleNewGame = () => {
-    socket.emit("multiplayer_newgame", "yeah");
+    socket.emit("multiplayer_newgame");
     dispatch(setPlayerColor("WHITE"));
     navigate("/game");
   };

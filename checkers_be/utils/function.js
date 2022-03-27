@@ -1,4 +1,5 @@
 const { pieceColors } = require("../constants");
+const { getAIMiddleBox } = require("./moveFunctions");
 
 const updatePiece = async (piece, gameState) => {
   gameState.allPiece[piece.pieceNumber] = piece;
@@ -67,9 +68,20 @@ const generateRandomRoomId = () => {
   return roomId;
 };
 
-const getPopulateString = () => {
-  return "allPiece allBoxes clickedPiece clickedBox pieceThatMadeLastKill pieceThatMovedLast piecesThatMustKill";
+const getNextTurn = (turn) => {
+  return turn === "WHITE" ? "GREEN" : "WHITE";
 };
+
+const getAllMiddleBoxes = (trends, allBoxes) => {
+  const middleBoxes = trends.map((move) => {
+    return getAIMiddleBox(move.box, move.toBox, allBoxes);
+  });
+  return middleBoxes;
+};
+
+// const getPopulateString = () => {
+//   return "allPiece allBoxes clickedPiece clickedBox pieceThatMadeLastKill pieceThatMovedLast piecesThatMustKill";
+// };
 
 module.exports = {
   updatePiece,
@@ -84,5 +96,6 @@ module.exports = {
   isPieceInPiecesThatMustKill,
   isPieceInKingPosition,
   generateRandomRoomId,
-  getPopulateString,
+  getNextTurn,
+  getAllMiddleBoxes,
 };

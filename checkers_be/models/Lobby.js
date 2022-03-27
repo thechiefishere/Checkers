@@ -6,15 +6,10 @@ const lobbySchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "GameState",
   },
-  roomId: {
-    type: String,
-  },
-  participant: {
-    type: Number,
-  },
-  gameHasStarted: {
-    type: String,
-  },
+  roomId: String,
+  participant: Number,
+  gameHasStarted: String,
+  gameType: String,
 });
 
 const Lobby = mongoose.model("Lobby", lobbySchema);

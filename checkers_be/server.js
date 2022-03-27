@@ -21,8 +21,15 @@ const {
 const lobbies = [];
 
 io.on("connection", (socket) => {
-  socket.on("multiplayer_newgame", async (msg) => {
-    const lobby = await createNewLobby();
+  socket.on("multiplayer_newgame", async () => {
+    const lobby = await createNewLobby("MULTIPLAYER");
+    socket.join(lobby.roomId);
+    const gameState = await getGameStateFromLobby(lobby);
+    io.to(lobby.roomId).emit("lobby", lobby);
+    io.to(lobby.roomId).emit("gameState", gameState);
+  });
+  socket.on("singleplayer_newgame", async () => {
+    const lobby = await createNewLobby("SINGLEPLAYER");
     socket.join(lobby.roomId);
     const gameState = await getGameStateFromLobby(lobby);
     io.to(lobby.roomId).emit("lobby", lobby);
@@ -41,7 +48,6 @@ io.on("connection", (socket) => {
     let lobby = await getLobbyWithRoomId(roomId);
     let gameState = await getGameStateFromLobby(lobby);
     setClickedPiece(piece, gameState);
-    // gameState = await setClickedPiece(piece, gameState);
     gameState = await updateGameState(lobby.gameState, gameState);
     io.to(roomId).emit("gameState", gameState);
   });
@@ -50,25 +56,25 @@ io.on("connection", (socket) => {
     let gameState = await getGameStateFromLobby(lobby);
     const moveTaken = { moveMade: false };
     handleRegularMove(
+      io,
+      lobby,
+      gameState,
+      roomId,
       fromBox,
       box,
       direction,
-      gameState,
-      io,
-      moveTaken,
-      roomId,
-      lobby
+      moveTaken
     );
     if (moveTaken.moveMade) return;
-    handleRegularKillMove(fromBox, box, gameState, io, roomId, lobby);
+    handleRegularKillMove(io, lobby, gameState, roomId, fromBox, box);
   });
   socket.on("handle-king-move", async (fromBox, box, roomId) => {
     let lobby = await getLobbyWithRoomId(roomId);
     let gameState = await getGameStateFromLobby(lobby);
     const moveTaken = { moveMade: false };
-    handleKingMove(fromBox, box, gameState, io, moveTaken, roomId, lobby);
+    handleKingMove(io, lobby, gameState, roomId, fromBox, box, moveTaken);
     if (moveTaken.moveMade) return;
-    handleKingKillMove(fromBox, box, gameState, io, roomId, lobby);
+    handleKingKillMove(io, lobby, gameState, roomId, fromBox, box);
   });
 });
 
