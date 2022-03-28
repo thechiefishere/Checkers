@@ -64,12 +64,11 @@ const generateRandomRoomId = () => {
     const random = Math.random() * possibleValues.length;
     roomId += possibleValues.charAt(random);
   }
-  console.log("roomId", roomId);
   return roomId;
 };
 
 const getNextTurn = (turn) => {
-  return turn === "WHITE" ? "GREEN" : "WHITE";
+  return turn === pieceColors[0] ? pieceColors[1] : pieceColors[0];
 };
 
 const getAllMiddleBoxes = (trends, allBoxes) => {

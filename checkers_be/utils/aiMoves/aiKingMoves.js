@@ -7,8 +7,6 @@ const getKingPieceValidMoves = (box, copyOfAllBoxes) => {
     const validMove = isKingMove(box, toBox, copyOfAllBoxes);
     if (validMove) validMoves.push(toBox);
   }
-  //   console.log("box", box);
-  //   console.log("validMoves", validMoves);
   return validMoves;
 };
 

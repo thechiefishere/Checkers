@@ -19,7 +19,6 @@ const getAllPieces = () => {
     }
     x++;
   }
-  //   console.log("allPiece", allPiece);
   return allPiece;
 };
 
@@ -50,7 +49,6 @@ const getAllBoxes = () => {
     }
     x++;
   }
-  //   console.log("allBoxes", allBoxes);
   return allBoxes;
 };
 

@@ -177,10 +177,6 @@ const canKingMakeSlantKill = (allBoxes, fromBox, toBox, middleBox, turn) => {
         copyOfAllBoxes,
         turn
       ).some((aBox) => aBox.boxNumber === box.boxNumber);
-      // console.log(
-      //   "pieceCanStillKill",
-      //   getBoxesWithPieceThatCanKill(copyOfAllBoxes, turn)
-      // );
       if (pieceCanStillKill) return true;
     }
     copyOfAllBoxes[i].piece = null;
@@ -198,7 +194,6 @@ const isInSlantKillPosition = (allBoxes, fromBox, toBox, middleBox, turn) => {
     middleBox,
     turn
   );
-  // console.log("slantKillPossible", slantKillPossible);
   if (slantKillPossible) {
     const slantKillPositions = getSlantKillPositions(
       allBoxes,
@@ -207,7 +202,6 @@ const isInSlantKillPosition = (allBoxes, fromBox, toBox, middleBox, turn) => {
       middleBox,
       turn
     );
-    // console.log("slantKillPositions", slantKillPositions);
     const validMove = slantKillPositions.some(
       (aBox) => aBox.boxNumber === toBox.boxNumber``
     );
