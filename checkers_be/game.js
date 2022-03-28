@@ -308,6 +308,7 @@ const computerMove = async (io, lobby, gameState, roomId) => {
   if (gameType !== "SINGLEPLAYER") return;
   if (turn !== pieceColors[1]) return;
   const aiBestMove = calculateMove(allBoxes, turn);
+  console.log("aiBestMove", aiBestMove);
   if (aiBestMove.moveType === "REGULAR MOVE")
     await makeAIRegularMove(
       io,

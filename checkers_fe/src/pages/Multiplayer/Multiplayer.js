@@ -19,7 +19,7 @@ const Multiplayer = () => {
 
   const handleJoinGame = () => {
     if (!gameId) return;
-    socket.emit("join-game", gameId);
+    socket.emit("join-game", gameId.trim());
     dispatch(setPlayerColor(pieceColors[1]));
     navigate("/game");
   };

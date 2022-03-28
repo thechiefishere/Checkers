@@ -30,7 +30,7 @@ const Piece = ({ piece, boardWidth }) => {
   const lobby = useSelector((state) => state.lobby);
 
   const { clickedPiece, turn, piecesThatMustKill } = gameState;
-  const { roomId } = lobby;
+  const { roomId, gameHasStarted } = lobby;
 
   useEffect(() => {
     setCanKill(false);
@@ -41,6 +41,7 @@ const Piece = ({ piece, boardWidth }) => {
   }, [piecesThatMustKill]);
 
   const handlePieceClick = () => {
+    if (gameHasStarted === "false") return;
     const validClick = validateClick(turn, playerColor, pieceColor);
     if (!validClick) return;
     if (piecesThatMustKill) {
