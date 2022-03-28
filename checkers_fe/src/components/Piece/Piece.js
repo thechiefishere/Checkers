@@ -5,6 +5,11 @@ import {
   isPieceInPiecesThatMustKill,
   validateClick,
 } from "../../utils/functions";
+import { pieceColors, pieceTypes } from "../../utils/constants";
+import WhitePiece from "../../assets/pieces/white_piece.jpg";
+import WhiteKing from "../../assets/pieces/white_king.jpg";
+import BlackPiece from "../../assets/pieces/black_piece.jpg";
+import BlackKing from "../../assets/pieces/black_king.jpg";
 
 const Piece = ({ piece, boardWidth }) => {
   const {
@@ -47,7 +52,17 @@ const Piece = ({ piece, boardWidth }) => {
   return (
     <div>
       {isAlive && (
-        <div
+        <img
+          src={
+            pieceColor === pieceColors[0]
+              ? pieceType === pieceTypes[0]
+                ? WhitePiece
+                : WhiteKing
+              : pieceType === pieceTypes[0]
+              ? BlackPiece
+              : BlackKing
+          }
+          alt="Piece"
           onClick={handlePieceClick}
           className={`piece ${
             clickedPiece !== null &&
@@ -61,12 +76,34 @@ const Piece = ({ piece, boardWidth }) => {
             top: topDimension * pieceHeight,
             left: leftDimension * pieceWidth,
           }}
-        >
-          {pieceType === "KING" && <h1 className="piece--king">K</h1>}
-        </div>
+        />
       )}
     </div>
   );
 };
+//   return (
+//     <div>
+//       {isAlive && (
+//         <div
+//           onClick={handlePieceClick}
+//           className={`piece ${
+//             clickedPiece !== null &&
+//             clickedPiece.pieceNumber === pieceNumber &&
+//             "piece--clicked"
+//           } ${canKill && "piece--canKill"}`}
+//           style={{
+//             backgroundColor: `${pieceColor}`,
+//             width: pieceWidth - 10,
+//             height: pieceWidth - 10,
+//             top: topDimension * pieceHeight,
+//             left: leftDimension * pieceWidth,
+//           }}
+//         >
+//           {pieceType === "KING" && <h1 className="piece--king">K</h1>}
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
 
 export default Piece;

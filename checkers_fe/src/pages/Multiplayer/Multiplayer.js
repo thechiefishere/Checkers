@@ -3,6 +3,7 @@ import "./Multiplayer.css";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setPlayerColor } from "../../store/actions";
+import { pieceColors } from "../../utils/constants";
 
 const Multiplayer = () => {
   const [gameId, setGameId] = useState("");
@@ -12,14 +13,14 @@ const Multiplayer = () => {
 
   const handleNewGame = () => {
     socket.emit("multiplayer_newgame");
-    dispatch(setPlayerColor("WHITE"));
+    dispatch(setPlayerColor(pieceColors[0]));
     navigate("/game");
   };
 
   const handleJoinGame = () => {
     if (!gameId) return;
     socket.emit("join-game", gameId);
-    dispatch(setPlayerColor("GREEN"));
+    dispatch(setPlayerColor(pieceColors[1]));
     navigate("/game");
   };
 

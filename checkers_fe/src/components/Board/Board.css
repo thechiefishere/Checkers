@@ -1,7 +1,7 @@
 .board {
   position: relative;
-  background-color: yellow;
+  background-color: #cd9f61;
   margin: 0 auto;
-  border: 5px solid rgb(0, 162, 255);
+  border: 7px solid #533203;
   border-radius: 5px;
 }

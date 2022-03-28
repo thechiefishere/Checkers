@@ -14,7 +14,7 @@ const Board = () => {
       {gameState && (
         <section
           className="board"
-          style={{ width: boardWidth + 10, height: boardWidth + 10 }}
+          style={{ width: boardWidth + 15, height: boardWidth + 15 }}
         >
           {gameState.allBoxes.map((box, index) => (
             <Box key={index} box={box} boardWidth={boardWidth} />
