@@ -275,6 +275,7 @@ const checkMultipleKills = async (lobby, gameState) => {
     updatePiecesThatMustKill(lobby, gameState);
     setIsKillMove(false, gameState);
     setPieceThatMadeLastKill(null, gameState);
+    setPiecesThatMustKill(null, gameState);
   }
 };
 
