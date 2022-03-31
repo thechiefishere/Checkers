@@ -1,10 +1,10 @@
 require("dotenv").config();
-const io = require("socket.io")();
-const mongoose = require("mongoose");
+const socket = require("socket.io");
 const connect = require("./db/connect_db");
-const port = 8000;
+const port = process.env.PORT || 8000;
+const express = require("express");
+const http = require("http");
 
-// const { isRegularMove, isRegularKillMove } = require("./utils/moveFunctions");
 const { setClickedPiece } = require("./utils/function");
 const {
   handleRegularMove,
@@ -18,6 +18,14 @@ const {
   updateGameState,
 } = require("./game");
 const { initialGameState } = require("./utils/initializer");
+
+const app = express();
+const server = http.createServer(app);
+const io = socket(server);
+
+app.get("/", (req, res) => {
+  res.send("");
+});
 
 io.on("connection", (socket) => {
   socket.on("multiplayer_newgame", async () => {
@@ -95,9 +103,9 @@ const start = async () => {
   try {
     await connect(process.env.MONGO_URI);
     // await connect("mongodb://localhost:27017/CheckersDB");
-    io.listen(process.env.PORT || port, {
+    io.listen(port, {
       cors: {
-        origin: ["http://localhost:3000"],
+        origin: ["http://localhost:3000", "https://checkersgame.netlify.app"],
       },
     });
   } catch (error) {
