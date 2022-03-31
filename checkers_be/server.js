@@ -93,9 +93,9 @@ io.on("connection", (socket) => {
 
 const start = async () => {
   try {
-    // await connect(process.env.MONGO_URI)
-    await connect("mongodb://localhost:27017/CheckersDB");
-    io.listen(8000, {
+    await connect(process.env.MONGO_URI);
+    // await connect("mongodb://localhost:27017/CheckersDB");
+    io.listen(process.env.PORT || port, {
       cors: {
         origin: ["http://localhost:3000"],
       },
