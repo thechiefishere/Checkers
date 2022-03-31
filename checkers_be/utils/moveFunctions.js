@@ -203,7 +203,7 @@ const isInSlantKillPosition = (allBoxes, fromBox, toBox, middleBox, turn) => {
       turn
     );
     const validMove = slantKillPositions.some(
-      (aBox) => aBox.boxNumber === toBox.boxNumber``
+      (aBox) => aBox.boxNumber === toBox.boxNumber
     );
     if (validMove) return true;
   } else return true;

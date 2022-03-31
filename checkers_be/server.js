@@ -17,8 +17,7 @@ const {
   getGameStateFromLobby,
   updateGameState,
 } = require("./game");
-
-const lobbies = [];
+const { initialGameState } = require("./utils/initializer");
 
 io.on("connection", (socket) => {
   socket.on("multiplayer_newgame", async () => {
@@ -75,6 +74,20 @@ io.on("connection", (socket) => {
     handleKingMove(io, lobby, gameState, roomId, fromBox, box, moveTaken);
     if (moveTaken.moveMade) return;
     handleKingKillMove(io, lobby, gameState, roomId, fromBox, box);
+  });
+  socket.on("restart", async (roomId) => {
+    const lobby = await getLobbyWithRoomId(roomId);
+    let gameState = await getGameStateFromLobby(lobby);
+    let newGameState = initialGameState;
+    gameState = await updateGameState(gameState._id, newGameState);
+    io.to(roomId).emit("gameState", gameState);
+  });
+  socket.on("reload", async (roomId) => {
+    const lobby = await getLobbyWithRoomId(roomId);
+    if (!lobby) return;
+    let gameState = await getGameStateFromLobby(lobby);
+    socket.join(roomId);
+    io.to(roomId).emit("gameState", gameState);
   });
 });
 

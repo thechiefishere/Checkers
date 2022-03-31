@@ -41,7 +41,7 @@ const Piece = ({ piece, boardWidth }) => {
   }, [piecesThatMustKill]);
 
   const handlePieceClick = () => {
-    if (gameHasStarted === "false") return;
+    if (!gameHasStarted) return;
     const validClick = validateClick(turn, playerColor, pieceColor);
     if (!validClick) return;
     if (piecesThatMustKill) {
@@ -82,29 +82,5 @@ const Piece = ({ piece, boardWidth }) => {
     </div>
   );
 };
-//   return (
-//     <div>
-//       {isAlive && (
-//         <div
-//           onClick={handlePieceClick}
-//           className={`piece ${
-//             clickedPiece !== null &&
-//             clickedPiece.pieceNumber === pieceNumber &&
-//             "piece--clicked"
-//           } ${canKill && "piece--canKill"}`}
-//           style={{
-//             backgroundColor: `${pieceColor}`,
-//             width: pieceWidth - 10,
-//             height: pieceWidth - 10,
-//             top: topDimension * pieceHeight,
-//             left: leftDimension * pieceWidth,
-//           }}
-//         >
-//           {pieceType === "KING" && <h1 className="piece--king">K</h1>}
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
 
 export default Piece;

@@ -8,7 +8,7 @@ const lobbySchema = new Schema({
   },
   roomId: String,
   participant: Number,
-  gameHasStarted: String,
+  gameHasStarted: Boolean,
   gameType: String,
 });
 

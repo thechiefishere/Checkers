@@ -1,5 +1,6 @@
 .home {
   padding-top: 20vh;
+  margin: 0 auto;
 }
 .btn--home {
   width: 100%;
@@ -10,8 +11,15 @@
 .btn--home:first-of-type {
   background-color: red;
   color: #fff;
+  margin-top: 15vh;
 }
 .btn--home:last-of-type {
   background-color: yellow;
   color: #000;
+}
+
+@media (min-width: 700px) {
+  .home {
+    width: 50%;
+  }
 }

@@ -1,3 +1,5 @@
+import { pieceColors } from "./constants";
+
 export const getBoardWidth = (windowWidth) => {
   if (windowWidth >= 600) return 500;
   let boardWidth = parseInt(windowWidth * 0.8);
@@ -16,4 +18,20 @@ export const isPieceInPiecesThatMustKill = (piece, piecesThatMustKill) => {
   );
   if (pieceIsIn) return true;
   return false;
+};
+
+export const getWinnersColor = (gameState) => {
+  if (!gameState) return;
+  const { allPiece } = gameState;
+  let whitePieceCount = 0;
+  let blackPieceCount = 0;
+  allPiece.forEach((piece) => {
+    if (piece.pieceColor === pieceColors[0]) {
+      if (piece.isAlive) whitePieceCount++;
+    } else {
+      if (piece.isAlive) blackPieceCount++;
+    }
+  });
+  if (whitePieceCount > 0 && blackPieceCount === 0) return pieceColors[0];
+  else if (whitePieceCount === 0 && blackPieceCount > 0) return pieceColors[1];
 };

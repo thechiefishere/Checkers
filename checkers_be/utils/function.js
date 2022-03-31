@@ -1,42 +1,46 @@
 const { pieceColors } = require("../constants");
 const { getAIMiddleBox } = require("./moveFunctions");
 
-const updatePiece = async (piece, gameState) => {
+const updatePiece = (piece, gameState) => {
   gameState.allPiece[piece.pieceNumber] = piece;
 };
 
-const updateBox = async (box, gameState) => {
+const updateBox = (box, gameState) => {
   gameState.allBoxes[box.boxNumber] = box;
 };
 
-const setPieceThatMovedLast = async (piece, gameState) => {
+const setPieceThatMovedLast = (piece, gameState) => {
   gameState.pieceThatMovedLast = piece;
 };
 
-const setClickedPiece = async (piece, gameState) => {
+const setClickedPiece = (piece, gameState) => {
   gameState.clickedPiece = piece;
 };
 
-const setMoveMade = async (isMove, gameState) => {
+const setMoveMade = (isMove, gameState) => {
   gameState.moveMade = isMove;
 };
 
-const switchTurn = async (gameState) => {
+const switchTurn = (gameState) => {
   const nextTurn =
     gameState.turn === pieceColors[0] ? pieceColors[1] : pieceColors[0];
   gameState.turn = nextTurn;
 };
 
-const setPiecesThatMustKill = async (pieces, gameState) => {
+const setPiecesThatMustKill = (pieces, gameState) => {
   gameState.piecesThatMustKill = pieces;
 };
 
-const setIsKillMove = async (isKill, gameState) => {
+const setIsKillMove = (isKill, gameState) => {
   gameState.isKillMove = isKill;
 };
 
-const setPieceThatMadeLastKill = async (piece, gameState) => {
+const setPieceThatMadeLastKill = (piece, gameState) => {
   gameState.pieceThatMadeLastKill = piece;
+};
+
+const setGameOver = (gameOver, gameState) => {
+  gameState.gameOver = gameOver;
 };
 
 const isPieceInPiecesThatMustKill = (piece, piecesThatMustKill) => {
@@ -78,9 +82,19 @@ const getAllMiddleBoxes = (trends, allBoxes) => {
   return middleBoxes;
 };
 
-// const getPopulateString = () => {
-//   return "allPiece allBoxes clickedPiece clickedBox pieceThatMadeLastKill pieceThatMovedLast piecesThatMustKill";
-// };
+const isGameOver = (allPiece) => {
+  let whitePieceCount = 0;
+  let blackPieceCount = 0;
+  allPiece.forEach((piece) => {
+    if (piece.pieceColor === pieceColors[0]) {
+      if (piece.isAlive) whitePieceCount++;
+    } else {
+      if (piece.isAlive) blackPieceCount++;
+    }
+  });
+  if (whitePieceCount > 0 && blackPieceCount > 0) return false;
+  return true;
+};
 
 module.exports = {
   updatePiece,
@@ -97,4 +111,6 @@ module.exports = {
   generateRandomRoomId,
   getNextTurn,
   getAllMiddleBoxes,
+  isGameOver,
+  setGameOver,
 };

@@ -12,6 +12,8 @@ const {
   isPieceInPiecesThatMustKill,
   generateRandomRoomId,
   getAllMiddleBoxes,
+  isGameOver,
+  setGameOver,
 } = require("./utils/function");
 const {
   isRegularMove,
@@ -83,12 +85,12 @@ const getStateUpdate = (gameState) => {
     allBoxes: gameState.allBoxes,
     turn: gameState.turn,
     clickedPiece: gameState.clickedPiece,
-    clickedBox: gameState.clickedBox,
     piecesThatMustKill: gameState.piecesThatMustKill,
     isKillMove: gameState.isKillMove,
     pieceThatMadeLastKill: gameState.pieceThatMadeLastKill,
     pieceThatMovedLast: gameState.pieceThatMovedLast,
     moveMade: gameState.moveMade,
+    gameOver: gameState.gameOver,
   };
 };
 
@@ -187,7 +189,7 @@ const handleKingKillMove = async (
   }
 };
 
-const makeMove = async (
+const makeMove = (
   lobby,
   gameState,
   clickedPiece,
@@ -198,6 +200,8 @@ const makeMove = async (
 ) => {
   setNewStates(gameState, clickedPiece, fromBox, middleBox, box);
   moveDispatch(lobby, gameState, clickedPiece, fromBox, box, moveType);
+  const gameOver = isGameOver(gameState.allPiece);
+  setGameOver(gameOver, gameState);
 };
 
 const setNewStates = (gameState, clickedPiece, fromBox, middleBox, box) => {
@@ -211,7 +215,7 @@ const setNewStates = (gameState, clickedPiece, fromBox, middleBox, box) => {
   if (middleBox !== null) setMiddleBoxState(middleBox, gameState);
 };
 
-const moveDispatch = async (
+const moveDispatch = (
   lobby,
   gameState,
   clickedPiece,
@@ -237,7 +241,7 @@ const moveDispatch = async (
   }
 };
 
-const setMiddleBoxState = async (middleBox, gameState) => {
+const setMiddleBoxState = (middleBox, gameState) => {
   const pieceInMiddleBox = middleBox.piece;
   pieceInMiddleBox.isAlive = false;
   middleBox.isFilled = false;
@@ -246,7 +250,7 @@ const setMiddleBoxState = async (middleBox, gameState) => {
   updateBox(middleBox, gameState);
 };
 
-const checkMultipleKills = async (lobby, gameState) => {
+const checkMultipleKills = (lobby, gameState) => {
   const { isKillMove, pieceThatMadeLastKill, allBoxes, turn } = gameState;
   if (!isKillMove || !pieceThatMadeLastKill) return;
   setMoveMade(true, gameState);
@@ -338,6 +342,8 @@ const makeAIRegularMove = async (io, lobby, gameState, roomId, box, toBox) => {
   setMoveMade(true, gameState);
   switchTurn(gameState);
   updatePiecesThatMustKill(lobby, gameState);
+  const gameOver = isGameOver(gameState.allPiece);
+  setGameOver(gameOver, gameState);
   gameState = await updateGameState(lobby.gameState, gameState);
   io.to(roomId).emit("gameState", gameState);
 };

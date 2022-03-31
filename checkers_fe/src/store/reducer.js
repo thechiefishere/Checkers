@@ -1,62 +1,23 @@
 import { io } from "socket.io-client";
 
-let gameState = null;
-const socket = io("http://localhost:8000");
-socket.on("connect", () => {
-  console.log("connected");
-  // socket.on("gameState", (state) => {
-  //   gameState = state;
-  //   console.log(gameState);
-  // });
+const socket = io("http://localhost:8000", {
+  reconnection: false,
 });
-
-// console.log("gameState", gameState);
-
-// export const initialState = {
-//   boardWidth: gameState.boardWidth,
-//   allPiece: gameState.allPiece,
-//   allBoxes: gameState.allBoxes,
-//   playersDetails: gameState.playersDetails,
-//   turn: gameState.turn,
-//   clickedPiece: gameState.clickedPiece,
-//   clickedBox: gameState.clickedBox,
-//   allBoxPieceSet: gameState.allBoxPieceSet,
-//   piecesThatMustKill: gameState.piecesThatMustKill,
-//   isKillMove: gameState.isKillMove,
-//   pieceThatMadeLastKill: gameState.pieceThatMadeLastKill,
-//   pieceThatMovedLast: gameState.pieceThatMovedLast,
-//   moveMade: gameState.moveMade,
-// };
-
-// export const initialState = {
-//   boardWidth: 0,
-//   allPiece: JSON.parse(localStorage.getItem("pieces")) || [],
-//   allBoxes: JSON.parse(localStorage.getItem("boxes")) || [],
-//   playersDetails: JSON.parse(localStorage.getItem("playerDetails")) || {
-//     player1: "HUMAN",
-//     player2: "CPU",
-//     player1Color: "WHITE",
-//     player2Color: "GREEN",
-//   },
-//   turn: localStorage.getItem("turn") || "WHITE",
-//   clickedPiece: null,
-//   clickedBox: null,
-//   allBoxPieceSet: localStorage.getItem("allBoxPieceSet") || false,
-//   piecesThatMustKill:
-//     JSON.parse(localStorage.getItem("piecesThatMustKill")) || null,
-//   isKillMove: localStorage.getItem("isKillMove") || false,
-//   pieceThatMadeLastKill:
-//     JSON.parse(localStorage.getItem("pieceThatMadeLastKill")) || null,
-//   pieceThatMovedLast:
-//     JSON.parse(localStorage.getItem("pieceThatMovedLast")) || null,
-//   moveMade: false,
-//   socket: socket,
-// };
+socket.on("connect", () => {
+  // console.log("connected");
+});
+window.onload = function () {
+  const gameState = localStorage.getItem("gameState");
+  if (!gameState || gameState.gameOver) return;
+  const lobby = JSON.parse(localStorage.getItem("lobby"));
+  const roomId = lobby.roomId;
+  socket.emit("reload", roomId);
+};
 
 export const initialState = {
-  lobby: {},
-  playerColor: null,
-  gameState: null,
+  lobby: JSON.parse(localStorage.getItem("lobby")) || {},
+  playerColor: localStorage.getItem("playerColor") || null,
+  gameState: JSON.parse(localStorage.getItem("gameState")) || null,
   socket: socket,
 };
 
@@ -72,6 +33,12 @@ export const reducer = (state = initialState, action) => {
       return {
         ...state,
         playerColor: action.payload,
+      };
+    }
+    case "SET_SOCKET": {
+      return {
+        ...state,
+        socket: action.payload,
       };
     }
     case "SET_LOBBY": {

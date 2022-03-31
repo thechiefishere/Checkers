@@ -17,13 +17,13 @@ const gameStateSchema = new Schema({
       type: Schema.Types.Mixed,
     },
   ],
-  clickedBox: Schema.Types.Mixed,
   clickedPiece: Schema.Types.Mixed,
   pieceThatMadeLastKill: Schema.Types.Mixed,
   pieceThatMovedLast: Schema.Types.Mixed,
   isKillMove: Boolean,
   moveMade: Boolean,
   turn: String,
+  gameOver: Boolean,
 });
 
 const GameState = mongoose.model("GameState", gameStateSchema);

@@ -11,7 +11,7 @@ const Board = () => {
 
   return (
     <section>
-      {gameState && (
+      {gameState && !gameState.gameOver && (
         <section
           className="board"
           style={{ width: boardWidth + 15, height: boardWidth + 15 }}

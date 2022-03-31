@@ -86,12 +86,12 @@ const initialGameState = {
   allBoxes: allBoxes,
   turn: pieceColors[0],
   clickedPiece: null,
-  clickedBox: null,
   piecesThatMustKill: null,
   isKillMove: false,
   pieceThatMadeLastKill: null,
   pieceThatMovedLast: null,
   moveMade: false,
+  gameOver: false,
 };
 
 module.exports = { initialGameState };

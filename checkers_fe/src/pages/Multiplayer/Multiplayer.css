@@ -1,22 +1,27 @@
 .multiplayer {
-  width: 90%;
-  margin: 15vh auto;
+  margin: 10vh auto;
   text-align: center;
-  font-size: 2em;
-  background-color: blue;
 }
 .multiplayer__heading {
-  font-size: 2em;
-  margin-bottom: 5vh;
+  font-size: 1.6em;
+  margin-bottom: 20vh;
 }
 .btn--multiplayer {
-  font-size: 1.4em;
-  margin: 30px auto;
+  margin: 15px auto;
   color: red;
+  width: 180px;
+  font-size: 1.4em;
 }
 .multiplayer__input {
   display: block;
-  margin: 30px auto;
-  width: 53%;
-  height: 60px;
+  margin: 15px auto;
+  width: 180px;
+  height: 35px;
+  border-radius: 10px;
+}
+
+@media (min-width: 700px) {
+  .multiplayer {
+    width: 50%;
+  }
 }

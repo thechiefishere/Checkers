@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setPlayerColor } from "../../store/actions";
 import Logo from "../../components/Logo/Logo";
+import { pieceColors } from "../../utils/constants";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -12,7 +13,8 @@ const Home = () => {
 
   const handleNewGameVsAi = () => {
     socket.emit("singleplayer_newgame");
-    dispatch(setPlayerColor("WHITE"));
+    localStorage.setItem("playerColor", pieceColors[0]);
+    dispatch(setPlayerColor(pieceColors[0]));
     navigate("/game");
   };
 

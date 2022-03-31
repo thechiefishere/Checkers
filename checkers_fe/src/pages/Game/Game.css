@@ -2,5 +2,11 @@
   text-align: center;
 }
 .game__turn {
-  margin-bottom: 9vh;
+  margin-bottom: 10px;
+}
+.game__piece-img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-bottom: 7vh;
 }
