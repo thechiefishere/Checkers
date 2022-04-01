@@ -1,5 +1,135 @@
 const { boxColors } = require("../constants");
-// const { checkIfPiecesCanKill } = require("./function");
+
+const possibleRegularMovesPositions = (allBoxes, box, direction) => {
+  const possibleMoves = [];
+  const boxNumber = box.boxNumber;
+  if (direction === "UP") {
+    if (boxNumber / 10 < 1) return possibleMoves;
+    if (boxNumber % 10 === 0) possibleMoves.push(boxNumber - 9);
+    if (boxNumber % 10 === 9) possibleMoves.push(boxNumber - 11);
+    else {
+      possibleMoves.push(allBoxes[boxNumber - 9]);
+      possibleMoves.push(allBoxes[boxNumber - 11]);
+    }
+  } else {
+    if (boxNumber / 10 >= 9) return possibleMoves;
+    if (boxNumber % 10 === 0) possibleMoves.push(allBoxes[boxNumber + 11]);
+    if (boxNumber % 10 === 9) possibleMoves.push(allBoxes[boxNumber + 9]);
+    else {
+      possibleMoves.push(allBoxes[boxNumber + 9]);
+      possibleMoves.push(allBoxes[boxNumber + 11]);
+    }
+  }
+  return possibleMoves;
+};
+
+const possibleRegularKillPositions = (allBoxes, box) => {
+  const possibleMoves = [];
+  const boxNumber = box.boxNumber;
+  if ((boxNumber % 10 === 0 || boxNumber % 10 === 1) && boxNumber / 10 < 2)
+    possibleMoves.push(allBoxes[boxNumber + 22]);
+  else if (
+    (boxNumber % 10 === 0 || boxNumber % 10 === 1) &&
+    boxNumber / 10 >= 8
+  )
+    possibleMoves.push(allBoxes[boxNumber - 18]);
+  else if ((boxNumber % 10 === 9 || boxNumber % 10 === 8) && boxNumber / 10 < 2)
+    possibleMoves.push(allBoxes[boxNumber + 18]);
+  else if (
+    (boxNumber % 10 === 9 || boxNumber % 10 === 8) &&
+    boxNumber / 10 >= 8
+  )
+    possibleMoves.push(allBoxes[boxNumber - 22]);
+  else if (boxNumber / 10 < 2) {
+    possibleMoves.push(allBoxes[boxNumber + 22]);
+    possibleMoves.push(allBoxes[boxNumber + 18]);
+  } else if (boxNumber / 10 >= 8) {
+    possibleMoves.push(allBoxes[boxNumber - 22]);
+    possibleMoves.push(allBoxes[boxNumber - 18]);
+  } else if (boxNumber % 10 === 0 || boxNumber % 10 === 1) {
+    possibleMoves.push(allBoxes[boxNumber + 22]);
+    possibleMoves.push(allBoxes[boxNumber - 18]);
+  } else if (boxNumber % 10 === 9 || boxNumber % 10 === 8) {
+    possibleMoves.push(allBoxes[boxNumber - 22]);
+    possibleMoves.push(allBoxes[boxNumber + 18]);
+  } else {
+    possibleMoves.push(allBoxes[boxNumber + 22]);
+    possibleMoves.push(allBoxes[boxNumber + 18]);
+    possibleMoves.push(allBoxes[boxNumber - 22]);
+    possibleMoves.push(allBoxes[boxNumber - 18]);
+  }
+  return possibleMoves;
+};
+
+const possibleKingMovesPositions = (allBoxes, box) => {
+  const boxNumber = box.boxNumber;
+  const possibleMoves = [];
+  const incByNine = getKingMoves(allBoxes, boxNumber, 9, "Inc");
+  const decByNine = getKingMoves(allBoxes, boxNumber, 9, "Dec");
+  const incByEleven = getKingMoves(allBoxes, boxNumber, 11, "Inc");
+  const decByEleven = getKingMoves(allBoxes, boxNumber, 11, "Dec");
+  if (boxNumber % 10 === 0 && boxNumber / 10 < 1)
+    possibleMoves.push(...incByEleven);
+  else if (boxNumber % 10 === 0 && boxNumber / 10 >= 9)
+    possibleMoves.push(...decByNine);
+  else if (boxNumber % 10 === 9 && boxNumber / 10 < 1)
+    possibleMoves.push(...incByNine);
+  else if (boxNumber % 10 === 9 && boxNumber / 10 >= 9)
+    possibleMoves.push(...decByEleven);
+  else if (boxNumber / 10 < 1) {
+    possibleMoves.push(...incByNine);
+    possibleMoves.push(...incByEleven);
+  } else if (boxNumber / 10 >= 9) {
+    possibleMoves.push(...decByNine);
+    possibleMoves.push(...decByEleven);
+  } else if (boxNumber % 10 === 0) {
+    possibleMoves.push(...decByNine);
+    possibleMoves.push(...incByEleven);
+  } else if (boxNumber % 10 === 9) {
+    possibleMoves.push(...incByNine);
+    possibleMoves.push(...decByEleven);
+  } else {
+    possibleMoves.push(...decByNine);
+    possibleMoves.push(...incByEleven);
+    possibleMoves.push(...incByNine);
+    possibleMoves.push(...decByEleven);
+  }
+  return possibleMoves;
+};
+
+const possibleKingKillPositions = (allBoxes, box) => {
+  const boxNumber = box.boxNumber;
+  const possibleMovePositions = possibleKingMovesPositions(allBoxes, box);
+  const possibleMoves = possibleMovePositions.filter((aBox) => {
+    if (
+      aBox.boxNumber !== boxNumber + 9 &&
+      aBox.boxNumber !== boxNumber - 9 &&
+      aBox.boxNumber !== boxNumber + 11 &&
+      aBox.boxNumber !== boxNumber - 11
+    )
+      return aBox;
+  });
+  return possibleMoves;
+};
+
+const getKingMoves = (allBoxes, boxNumber, val, type) => {
+  const possibleMoves = [];
+  let counter = boxNumber;
+  while (true) {
+    type === "Inc" ? (counter += val) : (counter -= val);
+    if (
+      counter % 10 === 0 ||
+      counter % 10 === 9 ||
+      counter / 10 < 1 ||
+      counter / 10 >= 9
+    ) {
+      possibleMoves.push(allBoxes[counter]);
+      break;
+    }
+    possibleMoves.push(allBoxes[counter]);
+  }
+  return possibleMoves;
+};
 
 const isValidAtEdge = (fromBoxNumber, toBoxNumber, boxDifference) => {
   if (toBoxNumber > fromBoxNumber) {
@@ -172,13 +302,20 @@ const canKingMakeSlantKill = (allBoxes, fromBox, toBox, middleBox, turn) => {
     if (box.isFilled) break;
     copyOfAllBoxes[i].piece = fromBox.piece;
     copyOfAllBoxes[i].isFilled = true;
-    if (checkIfPiecesCanKill(copyOfAllBoxes, turn)) {
-      const pieceCanStillKill = getBoxesWithPieceThatCanKill(
-        copyOfAllBoxes,
-        turn
-      ).some((aBox) => aBox.boxNumber === box.boxNumber);
+    const piecesThatCanKill = checkIfPiecesCanKill(copyOfAllBoxes, turn);
+    if (piecesThatCanKill) {
+      const pieceCanStillKill = piecesThatCanKill.some(
+        (aBox) => aBox.boxNumber === box.boxNumber
+      );
       if (pieceCanStillKill) return true;
     }
+    // if (checkIfPiecesCanKill(copyOfAllBoxes, turn)) {
+    //   const pieceCanStillKill = getBoxesWithPieceThatCanKill(
+    //     copyOfAllBoxes,
+    //     turn
+    //   ).some((aBox) => aBox.boxNumber === box.boxNumber);
+    //   if (pieceCanStillKill) return true;
+    // }
     copyOfAllBoxes[i].piece = null;
     copyOfAllBoxes[i].isFilled = false;
     if (i % 10 === 0 || i % 9 === 0) break;
@@ -211,48 +348,34 @@ const isInSlantKillPosition = (allBoxes, fromBox, toBox, middleBox, turn) => {
 };
 
 const checkIfPiecesCanKill = (allBoxes, turn, checkSlant = false) => {
+  const boxes = [];
   for (let i = 0; i < allBoxes.length; i++) {
     const box = allBoxes[i];
     if (!box.isFilled) continue;
     if (box.piece.pieceColor !== turn) continue;
-    for (let j = 0; j < allBoxes.length; j++) {
-      const aBox = allBoxes[j];
-      if (aBox.isFilled) continue;
-      if (aBox.boxColor === boxColors[2]) continue;
-      if (box.piece.pieceType === "REGULAR") {
-        const regularMove = isRegularKillMove(box, aBox, allBoxes);
-        if (regularMove.valid) return true;
-      } else {
-        const kingMove = isKingKillMove(box, aBox, allBoxes, turn, checkSlant);
-        if (kingMove.valid) return true;
+    if (box.piece.pieceType === "REGULAR") {
+      const regularKillPositions = possibleRegularKillPositions(allBoxes, box);
+      for (let i = 0; i < regularKillPositions.length; i++) {
+        const aBox = regularKillPositions[i];
+        const regularKill = isRegularKillMove(box, aBox, allBoxes);
+        if (regularKill.valid) {
+          boxes.push(box);
+          break;
+        }
       }
-    }
-  }
-  return false;
-};
-
-const getBoxesWithPieceThatCanKill = (allBoxes, turn) => {
-  let boxes = [];
-  for (let i = 0; i < allBoxes.length; i++) {
-    const box = allBoxes[i];
-    if (!box.isFilled) continue;
-    if (box.piece.pieceColor !== turn) continue;
-    for (let j = 0; j < allBoxes.length; j++) {
-      const aBox = allBoxes[j];
-      if (aBox.isFilled) continue;
-      if (box.piece.pieceType === "REGULAR") {
-        const regularMove = isRegularKillMove(box, aBox, allBoxes);
-        if (regularMove.valid) boxes.push(box);
-      } else {
-        const kingMove = isKingKillMove(box, aBox, allBoxes);
-        if (kingMove.valid) {
+    } else {
+      const kingKillPositions = possibleKingKillPositions(allBoxes, box);
+      for (let i = 0; i < kingKillPositions.length; i++) {
+        const aBox = kingKillPositions[i];
+        const kingKill = isKingKillMove(box, aBox, allBoxes, turn, checkSlant);
+        if (kingKill.valid) {
           boxes.push(box);
           break;
         }
       }
     }
   }
-  return boxes;
+  return boxes.length > 0 ? boxes : null;
 };
 
 const getSlantKillPositions = (allBoxes, fromBox, toBox, middleBox, turn) => {
@@ -271,13 +394,20 @@ const getSlantKillPositions = (allBoxes, fromBox, toBox, middleBox, turn) => {
     if (box.isFilled) break;
     copyOfAllBoxes[i].piece = fromBox.piece;
     copyOfAllBoxes[i].isFilled = true;
-    if (checkIfPiecesCanKill(copyOfAllBoxes, turn)) {
-      const pieceCanStillKill = getBoxesWithPieceThatCanKill(
-        copyOfAllBoxes,
-        turn
-      ).some((aBox) => aBox.boxNumber === box.boxNumber);
+    const piecesThatCanKill = checkIfPiecesCanKill(copyOfAllBoxes, turn);
+    if (piecesThatCanKill) {
+      const pieceCanStillKill = piecesThatCanKill.some(
+        (aBox) => aBox.boxNumber === box.boxNumber
+      );
       if (pieceCanStillKill) slantKillPositions.push(box);
     }
+    // if (checkIfPiecesCanKill(copyOfAllBoxes, turn)) {
+    //   const pieceCanStillKill = getBoxesWithPieceThatCanKill(
+    //     copyOfAllBoxes,
+    //     turn
+    //   ).some((aBox) => aBox.boxNumber === box.boxNumber);
+    //   if (pieceCanStillKill) slantKillPositions.push(box);
+    // }
     copyOfAllBoxes[i].piece = null;
     copyOfAllBoxes[i].isFilled = false;
     if (i % 10 === 0 || i % 9 === 0) break;
@@ -326,7 +456,10 @@ module.exports = {
   isKingMove,
   isKingKillMove,
   checkIfPiecesCanKill,
-  getBoxesWithPieceThatCanKill,
   getAIMiddleBox,
   pieceIsClosingRanks,
+  possibleRegularMovesPositions,
+  possibleRegularKillPositions,
+  possibleKingMovesPositions,
+  possibleKingKillPositions,
 };

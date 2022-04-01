@@ -21,7 +21,6 @@ const {
   isKingMove,
   isKingKillMove,
   checkIfPiecesCanKill,
-  getBoxesWithPieceThatCanKill,
 } = require("./utils/moveFunctions");
 const { calculateMove } = require("./utils/aiMoves/aiRegularMoves");
 
@@ -254,8 +253,8 @@ const checkMultipleKills = (lobby, gameState) => {
   const { isKillMove, pieceThatMadeLastKill, allBoxes, turn } = gameState;
   if (!isKillMove || !pieceThatMadeLastKill) return;
   setMoveMade(true, gameState);
-  const pieceExist = checkIfPiecesCanKill(allBoxes, turn);
-  if (!pieceExist) {
+  const boxes = checkIfPiecesCanKill(allBoxes, turn);
+  if (!boxes) {
     setPiecesThatMustKill(null, gameState);
     confirmKingship(gameState);
     switchTurn(gameState);
@@ -264,7 +263,6 @@ const checkMultipleKills = (lobby, gameState) => {
     updatePiecesThatMustKill(lobby, gameState);
     return;
   }
-  const boxes = getBoxesWithPieceThatCanKill(allBoxes, turn);
   const pieces = boxes.map((box) => box.piece);
   const pieceIsIn = pieces.some(
     (piece) => piece.pieceNumber === pieceThatMadeLastKill.pieceNumber
@@ -287,9 +285,8 @@ const updatePiecesThatMustKill = (lobby, gameState) => {
   const { allBoxes, turn } = gameState;
   const { gameType } = lobby;
   if (gameType === "SINGLEPLAYER" && turn === pieceColors[1]) return;
-  const pieceExist = checkIfPiecesCanKill(allBoxes, turn);
-  if (!pieceExist) return;
-  const boxes = getBoxesWithPieceThatCanKill(allBoxes, turn);
+  const boxes = checkIfPiecesCanKill(allBoxes, turn);
+  if (!boxes) return;
   const pieces = boxes.map((box) => box.piece);
   setPiecesThatMustKill(pieces, gameState);
 };
@@ -313,6 +310,7 @@ const computerMove = async (io, lobby, gameState, roomId) => {
   if (gameType !== "SINGLEPLAYER") return;
   if (turn !== pieceColors[1]) return;
   const aiBestMove = calculateMove(allBoxes, turn);
+  // console.log("aiBestMove", aiBestMove);
   if (aiBestMove.moveType === "REGULAR MOVE")
     await makeAIRegularMove(
       io,
@@ -340,6 +338,7 @@ const makeAIRegularMove = async (io, lobby, gameState, roomId, box, toBox) => {
   updateBox(toBox, gameState);
   setPieceThatMovedLast(pieceInBox, gameState);
   setMoveMade(true, gameState);
+  confirmKingship(gameState);
   switchTurn(gameState);
   updatePiecesThatMustKill(lobby, gameState);
   const gameOver = isGameOver(gameState.allPiece);

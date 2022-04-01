@@ -1,10 +1,11 @@
 const {
   checkIfPiecesCanKill,
-  getBoxesWithPieceThatCanKill,
   getAIMiddleBox,
   isRegularKillMove,
   isRegularMove,
   pieceIsClosingRanks,
+  possibleRegularMovesPositions,
+  possibleRegularKillPositions,
 } = require("../moveFunctions");
 const { getNextTurn } = require("../function");
 const {
@@ -30,12 +31,8 @@ const calculateMove = (
   multiKill = false
 ) => {
   const copyOfAllBoxes = JSON.parse(JSON.stringify(allBoxes));
-  const piecesCanKill = checkIfPiecesCanKill(copyOfAllBoxes, turn);
-  if (piecesCanKill) {
-    const piecesThatCanKill = getBoxesWithPieceThatCanKill(
-      copyOfAllBoxes,
-      turn
-    );
+  const piecesThatCanKill = checkIfPiecesCanKill(copyOfAllBoxes, turn);
+  if (piecesThatCanKill) {
     const bestMove = whenKillIsPossible(
       copyOfAllBoxes,
       turn,
@@ -57,7 +54,7 @@ const whenKillIsPossible = (
   fromBox,
   multiKill
 ) => {
-  const piecesThatCanKill = getBoxesWithPieceThatCanKill(copyOfAllBoxes, turn);
+  const piecesThatCanKill = checkIfPiecesCanKill(copyOfAllBoxes, turn);
   for (let i = 0; i < piecesThatCanKill.length; i++) {
     if (callNumber === 1 && i === 0) ratingsForAiFirstMoves = [];
     const box = piecesThatCanKill[i];
@@ -117,16 +114,6 @@ const getPieceValidMoves = (box, copyOfAllBoxes) => {
   return validMoves;
 };
 
-const getRegularPieceValidMoves = (box, copyOfAllBoxes) => {
-  const validMoves = [];
-  for (let i = 0; i < copyOfAllBoxes.length; i++) {
-    const toBox = copyOfAllBoxes[i];
-    const validMove = isRegularMove(box, toBox, box.piece.pieceDirection);
-    if (validMove) validMoves.push(toBox);
-  }
-  return validMoves;
-};
-
 const getPieceValidKills = (box, copyOfAllBoxes, turn) => {
   let validKills = [];
   if (box.piece.pieceType === "REGULAR")
@@ -135,10 +122,26 @@ const getPieceValidKills = (box, copyOfAllBoxes, turn) => {
   return validKills;
 };
 
+const getRegularPieceValidMoves = (box, copyOfAllBoxes) => {
+  const validMoves = [];
+  const piecePossibleMoves = possibleRegularMovesPositions(
+    copyOfAllBoxes,
+    box,
+    box.piece.pieceDirection
+  );
+  for (let i = 0; i < piecePossibleMoves.length; i++) {
+    const toBox = piecePossibleMoves[i];
+    const validMove = isRegularMove(box, toBox, box.piece.pieceDirection);
+    if (validMove) validMoves.push(toBox);
+  }
+  return validMoves;
+};
+
 const getRegularPieceValidKills = (box, copyOfAllBoxes) => {
   const validKills = [];
-  for (let i = 0; i < copyOfAllBoxes.length; i++) {
-    const toBox = copyOfAllBoxes[i];
+  const piecePossibleKills = possibleRegularKillPositions(copyOfAllBoxes, box);
+  for (let i = 0; i < piecePossibleKills.length; i++) {
+    const toBox = piecePossibleKills[i];
     const validKill = isRegularKillMove(box, toBox, copyOfAllBoxes);
     if (validKill.valid) validKills.push(toBox);
   }
@@ -266,9 +269,8 @@ const tryValidKill = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
 
 const turnCanMakeMultipleKills = (toBox, fakedBoxes, turn) => {
   let pieceCanStillKill = false;
-  const piecesCanKill = checkIfPiecesCanKill(fakedBoxes, turn);
-  if (piecesCanKill) {
-    const piecesThatCanKill = getBoxesWithPieceThatCanKill(fakedBoxes, turn);
+  const piecesThatCanKill = checkIfPiecesCanKill(fakedBoxes, turn);
+  if (piecesThatCanKill) {
     pieceCanStillKill = piecesThatCanKill.some(
       (aBox) => aBox.boxNumber === toBox.boxNumber
     );

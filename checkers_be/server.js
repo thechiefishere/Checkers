@@ -28,6 +28,9 @@ app.get("/", (req, res) => {
 });
 
 io.on("connection", (socket) => {
+  socket.on("disconnected", () => {
+    socket.emit("disconnect");
+  });
   socket.on("multiplayer_newgame", async () => {
     const lobby = await createNewLobby("MULTIPLAYER");
     socket.join(lobby.roomId);

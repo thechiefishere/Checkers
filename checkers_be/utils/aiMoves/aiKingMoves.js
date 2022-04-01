@@ -1,9 +1,15 @@
-const { isKingMove, isKingKillMove } = require("../moveFunctions");
+const {
+  isKingMove,
+  isKingKillMove,
+  possibleKingMovesPositions,
+  possibleKingKillPositions,
+} = require("../moveFunctions");
 
 const getKingPieceValidMoves = (box, copyOfAllBoxes) => {
   const validMoves = [];
-  for (let i = 0; i < copyOfAllBoxes.length; i++) {
-    const toBox = copyOfAllBoxes[i];
+  const possibleKingMoves = possibleKingMovesPositions(copyOfAllBoxes, box);
+  for (let i = 0; i < possibleKingMoves.length; i++) {
+    const toBox = possibleKingMoves[i];
     const validMove = isKingMove(box, toBox, copyOfAllBoxes);
     if (validMove) validMoves.push(toBox);
   }
@@ -12,8 +18,9 @@ const getKingPieceValidMoves = (box, copyOfAllBoxes) => {
 
 const getKingPieceValidKills = (box, copyOfAllBoxes, turn) => {
   const validKills = [];
-  for (let i = 0; i < copyOfAllBoxes.length; i++) {
-    const toBox = copyOfAllBoxes[i];
+  const possibleKingKills = possibleKingKillPositions(copyOfAllBoxes, box);
+  for (let i = 0; i < possibleKingKills.length; i++) {
+    const toBox = possibleKingKills[i];
     const validKill = isKingKillMove(box, toBox, copyOfAllBoxes, turn, true);
     if (validKill.valid) validKills.push(toBox);
   }

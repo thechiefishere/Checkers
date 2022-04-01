@@ -2,7 +2,7 @@
   margin: 0 auto;
   background-color: #cd9f61;
   border-radius: 10px;
-  margin-top: 12vh;
+  margin-top: 5vh;
   padding: 10px;
 }
 
@@ -17,12 +17,12 @@
 
 .game-over h1:nth-of-type(2) {
   color: yellow;
-  margin-bottom: 15vh;
+  margin-bottom: 13vh;
 }
 
 .game-over__text {
   font-size: 2.2em;
-  margin-bottom: 23vh;
+  margin-bottom: 20vh;
   color: black;
 }
 
