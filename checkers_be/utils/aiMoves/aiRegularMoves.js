@@ -154,7 +154,8 @@ const tryValidMove = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
   if (callNumber === 1) {
     calculateMove(fakedBoxes, nextTurn, 2);
     if (ratingsForPlayerFirstCounter) {
-      const rating = getPlayerBestRating(ratingsForPlayerFirstCounter);
+      const rating = getAiBestRating(ratingsForPlayerFirstCounter);
+      // const rating = getPlayerBestRating(ratingsForPlayerFirstCounter);
       aiMoveRating = {
         trend: [{ box, toBox }],
         rating,
@@ -167,7 +168,8 @@ const tryValidMove = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
   if (callNumber === 2) {
     calculateMove(fakedBoxes, nextTurn, 3);
     if (ratingsForSecondAIMoves) {
-      const playerBestRating = getAiBestRating(ratingsForSecondAIMoves);
+      const playerBestRating = getPlayerBestRating(ratingsForSecondAIMoves);
+      // const playerBestRating = getAiBestRating(ratingsForSecondAIMoves);
       ratingsForPlayerFirstCounter.push(playerBestRating);
       ratingsForSecondAIMoves = [];
     }
@@ -175,7 +177,8 @@ const tryValidMove = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
   if (callNumber === 3) {
     calculateMove(fakedBoxes, nextTurn, 4);
     if (ratingsForPlayerSecondCounter) {
-      const aiBestRating = getPlayerBestRating(ratingsForPlayerSecondCounter);
+      const aiBestRating = getAiBestRating(ratingsForPlayerSecondCounter);
+      // const aiBestRating = getPlayerBestRating(ratingsForPlayerSecondCounter);
       ratingsForSecondAIMoves.push(aiBestRating);
       ratingsForPlayerSecondCounter = [];
     }
@@ -184,12 +187,13 @@ const tryValidMove = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
     calculateMove(fakedBoxes, nextTurn, 5);
     if (ratingsForThirdAIMoves) {
       const playerBestRating = getPlayerBestRating(ratingsForThirdAIMoves);
+      // const playerBestRating = getPlayerBestRating(ratingsForThirdAIMoves);
       ratingsForPlayerSecondCounter.push(playerBestRating);
       ratingsForThirdAIMoves = [];
     }
   }
   if (callNumber === 5) {
-    const rating = calculateRating(fakedBoxes, nextTurn);
+    const rating = calculateRating(copyOfAllBoxes, fakedBoxes, nextTurn);
     ratingsForThirdAIMoves.push(rating);
   }
 };
@@ -209,7 +213,8 @@ const tryValidKill = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
       calculateMove(fakedBoxes, nextTurn, 2);
     }
     if (ratingsForPlayerFirstCounter) {
-      const rating = getPlayerBestRating(ratingsForPlayerFirstCounter);
+      // const rating = getPlayerBestRating(ratingsForPlayerFirstCounter);
+      const rating = getAiBestRating(ratingsForPlayerFirstCounter);
       aiMoveRating = {
         trend: [...killTrend],
         rating,
@@ -227,7 +232,8 @@ const tryValidKill = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
       return;
     } else calculateMove(fakedBoxes, nextTurn, 3);
     if (ratingsForSecondAIMoves) {
-      const playerBestRating = getAiBestRating(ratingsForSecondAIMoves);
+      // const playerBestRating = getAiBestRating(ratingsForSecondAIMoves);
+      const playerBestRating = getPlayerBestRating(ratingsForSecondAIMoves);
       ratingsForPlayerFirstCounter.push(playerBestRating);
       ratingsForSecondAIMoves = [];
     }
@@ -239,7 +245,8 @@ const tryValidKill = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
       return;
     } else calculateMove(fakedBoxes, nextTurn, 4);
     if (ratingsForPlayerSecondCounter) {
-      const aiBestRating = getPlayerBestRating(ratingsForPlayerSecondCounter);
+      // const aiBestRating = getPlayerBestRating(ratingsForPlayerSecondCounter);
+      const aiBestRating = getAiBestRating(ratingsForPlayerSecondCounter);
       ratingsForSecondAIMoves.push(aiBestRating);
       ratingsForPlayerSecondCounter = [];
     }
@@ -262,7 +269,7 @@ const tryValidKill = (box, toBox, copyOfAllBoxes, turn, callNumber) => {
       calculateMove(fakedBoxes, turn, 5, toBox.boxNumber, true);
       return;
     }
-    const rating = calculateRating(fakedBoxes, nextTurn);
+    const rating = calculateRating(copyOfAllBoxes, fakedBoxes, nextTurn);
     ratingsForThirdAIMoves.push(rating);
   }
 };
@@ -278,14 +285,19 @@ const turnCanMakeMultipleKills = (toBox, fakedBoxes, turn) => {
   return pieceCanStillKill;
 };
 
-const calculateRating = (fakedBoxes, turn) => {
-  const pieceCount = countPieces(fakedBoxes, turn);
-  return pieceCount.playerPiecesCount - pieceCount.aiPiecesCount;
+const calculateRating = (copyOfAllBoxes, fakedBoxes, turn) => {
+  const pieceCountBefore = countPieces(copyOfAllBoxes, turn);
+  const pieceCountAfter = countPieces(fakedBoxes, turn);
+  const playerPieceDifference =
+    pieceCountBefore.playerPiecesCount - pieceCountAfter.playerPiecesCount;
+  const aiPieceDifference =
+    pieceCountBefore.aiPiecesCount - pieceCountAfter.aiPiecesCount;
+  return playerPieceDifference - aiPieceDifference;
 };
 
-const getPlayerBestRating = (ratingsForSecondAIMoves) => {
-  let playerBestRating = ratingsForSecondAIMoves[0];
-  ratingsForSecondAIMoves.forEach((val) => {
+const getPlayerBestRating = (aiBestRatings) => {
+  let playerBestRating = aiBestRatings[0];
+  aiBestRatings.forEach((val) => {
     if (val > playerBestRating) {
       playerBestRating = val;
     }
@@ -293,9 +305,9 @@ const getPlayerBestRating = (ratingsForSecondAIMoves) => {
   return playerBestRating;
 };
 
-const getAiBestRating = (playerBestRating) => {
-  let aiBestRating = playerBestRating[0];
-  playerBestRating.forEach((val) => {
+const getAiBestRating = (playerBestRatings) => {
+  let aiBestRating = playerBestRatings[0];
+  playerBestRatings.forEach((val) => {
     if (val < aiBestRating) {
       aiBestRating = val;
     }
@@ -343,6 +355,7 @@ const getBestMove = (ratingsForAiFirstMoves, copyOfAllBoxes) => {
 };
 
 const getLowestRating = (ratingsForAiFirstMoves) => {
+  // console.log("ratingsForAiFirstMoves", ratingsForAiFirstMoves);
   let lowestRating = ratingsForAiFirstMoves[0].rating;
   ratingsForAiFirstMoves.map((move) => {
     const rating = move.rating;

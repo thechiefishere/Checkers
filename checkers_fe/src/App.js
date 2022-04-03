@@ -12,8 +12,8 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    socket.on("disconnect", () => {
-      // console.log("disconnected");
+    socket.on("disconnect", (reason) => {
+      console.log("disconnected due to", reason);
     });
   });
 

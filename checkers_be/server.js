@@ -1,9 +1,9 @@
 require("dotenv").config();
-const socket = require("socket.io");
+// const socket = require("socket.io");
 const connect = require("./db/connect_db");
 const port = process.env.PORT || 8000;
-const express = require("express");
-const http = require("http");
+// const express = require("express");
+// const http = require("http");
 
 const { setClickedPiece } = require("./utils/function");
 const {
@@ -19,9 +19,19 @@ const {
 } = require("./game");
 const { initialGameState } = require("./utils/initializer");
 
-const app = express();
-const server = http.createServer(app);
-const io = socket(server);
+// const app = express();
+// const server = http.createServer(app);
+// const io = socket(server);
+// var io = require("socket.io")(server);
+// io.set("heartbeat timeout", 5000);
+// io.set("heartbeat interval", 3000);
+
+var app = require("express")();
+var http = require("http").Server(app);
+var io = require("socket.io")(http, {
+  pingInterval: 30000,
+  pingTimeout: 60000,
+});
 
 app.get("/", (req, res) => {
   res.send("");
@@ -29,6 +39,7 @@ app.get("/", (req, res) => {
 
 io.on("connection", (socket) => {
   socket.on("disconnected", () => {
+    console.log("DISCONNECTED");
     socket.emit("disconnect");
   });
   socket.on("multiplayer_newgame", async () => {
@@ -104,8 +115,8 @@ io.on("connection", (socket) => {
 
 const start = async () => {
   try {
-    await connect(process.env.MONGO_URI);
-    // await connect("mongodb://localhost:27017/CheckersDB");
+    // await connect(process.env.MONGO_URI);
+    await connect("mongodb://localhost:27017/CheckersDB");
     io.listen(port, {
       cors: {
         origin: ["http://localhost:3000", "https://checkersgame.netlify.app"],
