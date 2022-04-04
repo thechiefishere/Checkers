@@ -1,9 +1,6 @@
 require("dotenv").config();
-// const socket = require("socket.io");
 const connect = require("./db/connect_db");
 const port = process.env.PORT || 8000;
-// const express = require("express");
-// const http = require("http");
 
 const { setClickedPiece } = require("./utils/function");
 const {
@@ -18,13 +15,6 @@ const {
   updateGameState,
 } = require("./game");
 const { initialGameState } = require("./utils/initializer");
-
-// const app = express();
-// const server = http.createServer(app);
-// const io = socket(server);
-// var io = require("socket.io")(server);
-// io.set("heartbeat timeout", 5000);
-// io.set("heartbeat interval", 3000);
 
 var app = require("express")();
 var http = require("http").Server(app);

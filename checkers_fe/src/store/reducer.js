@@ -1,11 +1,11 @@
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:8000", {
-  reconnection: false,
-});
-// const socket = io("https://checkersdb.herokuapp.com/", {
+// const socket = io("http://localhost:8000", {
 //   reconnection: false,
 // });
+const socket = io("https://checkersdb.herokuapp.com/", {
+  reconnection: false,
+});
 socket.on("connect", () => {
   console.log("connected");
 });
