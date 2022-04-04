@@ -22,6 +22,7 @@ export const initialState = {
   playerColor: localStorage.getItem("playerColor") || null,
   gameState: JSON.parse(localStorage.getItem("gameState")) || null,
   socket: socket,
+  clicked: -1,
 };
 
 export const reducer = (state = initialState, action) => {
@@ -38,10 +39,10 @@ export const reducer = (state = initialState, action) => {
         playerColor: action.payload,
       };
     }
-    case "SET_SOCKET": {
+    case "SET_CLICKED": {
       return {
         ...state,
-        socket: action.payload,
+        clicked: action.payload,
       };
     }
     case "SET_LOBBY": {

@@ -115,8 +115,8 @@ io.on("connection", (socket) => {
 
 const start = async () => {
   try {
-    // await connect(process.env.MONGO_URI);
-    await connect("mongodb://localhost:27017/CheckersDB");
+    await connect(process.env.MONGO_URI);
+    // await connect("mongodb://localhost:27017/CheckersDB");
     io.listen(port, {
       cors: {
         origin: ["http://localhost:3000", "https://checkersgame.netlify.app"],

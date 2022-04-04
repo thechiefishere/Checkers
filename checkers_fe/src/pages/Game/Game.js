@@ -18,8 +18,14 @@ const Game = () => {
       <Logo />
       <h3 className="game__turn">
         {gameState && playerColor === gameState.turn
-          ? lobby.gameHasStarted && !gameState.gameOver && "Your Turn"
-          : lobby.gameHasStarted && !gameState.gameOver && "Opponent's Turn"}
+          ? lobby.gameHasStarted &&
+            gameState &&
+            !gameState.gameOver &&
+            "Your Turn"
+          : lobby.gameHasStarted &&
+            gameState &&
+            !gameState.gameOver &&
+            "Opponent's Turn"}
       </h3>
       <img
         className="game__piece-img"

@@ -19,9 +19,9 @@ export const setLobby = (lobby) => {
   };
 };
 
-export const setSocket = (socket) => {
+export const setClicked = (number) => {
   return {
-    type: "SET_SOCKET",
-    payload: socket,
+    type: "SET_CLICKED",
+    payload: number,
   };
 };

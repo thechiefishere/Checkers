@@ -5,8 +5,8 @@ const possibleRegularMovesPositions = (allBoxes, box, direction) => {
   const boxNumber = box.boxNumber;
   if (direction === "UP") {
     if (boxNumber / 10 < 1) return possibleMoves;
-    if (boxNumber % 10 === 0) possibleMoves.push(boxNumber - 9);
-    if (boxNumber % 10 === 9) possibleMoves.push(boxNumber - 11);
+    if (boxNumber % 10 === 0) possibleMoves.push(allBoxes[boxNumber - 9]);
+    if (boxNumber % 10 === 9) possibleMoves.push(allBoxes[boxNumber - 11]);
     else {
       possibleMoves.push(allBoxes[boxNumber - 9]);
       possibleMoves.push(allBoxes[boxNumber - 11]);
@@ -309,13 +309,6 @@ const canKingMakeSlantKill = (allBoxes, fromBox, toBox, middleBox, turn) => {
       );
       if (pieceCanStillKill) return true;
     }
-    // if (checkIfPiecesCanKill(copyOfAllBoxes, turn)) {
-    //   const pieceCanStillKill = getBoxesWithPieceThatCanKill(
-    //     copyOfAllBoxes,
-    //     turn
-    //   ).some((aBox) => aBox.boxNumber === box.boxNumber);
-    //   if (pieceCanStillKill) return true;
-    // }
     copyOfAllBoxes[i].piece = null;
     copyOfAllBoxes[i].isFilled = false;
     if (i % 10 === 0 || i % 9 === 0) break;

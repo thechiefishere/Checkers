@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Piece.css";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   isPieceInPiecesThatMustKill,
   validateClick,
@@ -10,6 +10,7 @@ import WhitePiece from "../../assets/pieces/white_piece.jpg";
 import WhiteKing from "../../assets/pieces/white_king.jpg";
 import BlackPiece from "../../assets/pieces/black_piece.jpg";
 import BlackKing from "../../assets/pieces/black_king.jpg";
+import { setClicked } from "../../store/actions";
 
 const Piece = ({ piece, boardWidth }) => {
   const {
@@ -21,6 +22,7 @@ const Piece = ({ piece, boardWidth }) => {
     isAlive,
   } = piece;
   const [canKill, setCanKill] = useState(false);
+  const dispatch = useDispatch();
 
   const pieceWidth = boardWidth / 10;
   const pieceHeight = pieceWidth;
@@ -28,6 +30,7 @@ const Piece = ({ piece, boardWidth }) => {
   const playerColor = useSelector((state) => state.playerColor);
   const socket = useSelector((state) => state.socket);
   const lobby = useSelector((state) => state.lobby);
+  const clicked = useSelector((state) => state.clicked);
 
   const { clickedPiece, turn, piecesThatMustKill } = gameState;
   const { roomId, gameHasStarted } = lobby;
@@ -40,14 +43,24 @@ const Piece = ({ piece, boardWidth }) => {
     });
   }, [piecesThatMustKill]);
 
+  useEffect(() => {
+    dispatch(setClicked(-1));
+  }, [turn]);
+
   const handlePieceClick = () => {
     if (!gameHasStarted) return;
     const validClick = validateClick(turn, playerColor, pieceColor);
     if (!validClick) return;
     if (piecesThatMustKill) {
       const pieceIsIn = isPieceInPiecesThatMustKill(piece, piecesThatMustKill);
-      if (pieceIsIn) socket.emit("clicked-piece", piece, roomId);
-    } else socket.emit("clicked-piece", piece, roomId);
+      if (pieceIsIn) {
+        dispatch(setClicked(piece.pieceNumber));
+        socket.emit("clicked-piece", piece, roomId);
+      }
+    } else {
+      dispatch(setClicked(piece.pieceNumber));
+      socket.emit("clicked-piece", piece, roomId);
+    }
   };
 
   return (
@@ -69,7 +82,9 @@ const Piece = ({ piece, boardWidth }) => {
             clickedPiece !== null &&
             clickedPiece.pieceNumber === pieceNumber &&
             "piece--clicked"
-          } ${canKill && "piece--canKill"}`}
+          } ${canKill && "piece--canKill"} ${
+            clicked === piece.pieceNumber && "piece--clicked"
+          }`}
           style={{
             backgroundColor: `${pieceColor}`,
             width: pieceWidth - 10,

@@ -12,7 +12,7 @@ const {
   getKingPieceValidMoves,
   getKingPieceValidKills,
 } = require("./aiKingMoves");
-const { pieceColors } = require("../../constants");
+const { pieceColors, pieceTypes } = require("../../constants");
 
 let aiMoveRating = {};
 let ratingsForAiFirstMoves = [];
@@ -303,7 +303,7 @@ const calculateRating = (fakedBoxes, turn) => {
 const getPlayerBestRating = (aiBestRatings) => {
   let playerBestRating = aiBestRatings[0];
   aiBestRatings.forEach((val) => {
-    if (val > playerBestRating) {
+    if (val < playerBestRating) {
       playerBestRating = val;
     }
   });
@@ -313,7 +313,7 @@ const getPlayerBestRating = (aiBestRatings) => {
 const getAiBestRating = (playerBestRatings) => {
   let aiBestRating = playerBestRatings[0];
   playerBestRatings.forEach((val) => {
-    if (val < aiBestRating) {
+    if (val > aiBestRating) {
       aiBestRating = val;
     }
   });
@@ -325,8 +325,14 @@ const countPieces = (fakeTheBoxes, turn) => {
   let playerPiecesCount = 0;
   fakeTheBoxes.forEach((box) => {
     if (!box.isFilled) return;
-    if (box.piece.pieceColor === turn) playerPiecesCount++;
-    else aiPiecesCount++;
+    const pieceInBox = box.piece;
+    if (pieceInBox.pieceColor === turn) {
+      if (pieceInBox.pieceType === pieceTypes[1]) playerPiecesCount += 3;
+      else playerPiecesCount++;
+    } else {
+      if (pieceInBox.pieceType === pieceTypes[1]) aiPiecesCount += 3;
+      else aiPiecesCount++;
+    }
   });
   return { aiPiecesCount, playerPiecesCount };
 };
