@@ -82,20 +82,6 @@ const getAllMiddleBoxes = (trends, allBoxes) => {
   return middleBoxes;
 };
 
-const isGameOver = (allPiece) => {
-  let whitePieceCount = 0;
-  let blackPieceCount = 0;
-  allPiece.forEach((piece) => {
-    if (piece.pieceColor === pieceColors[0]) {
-      if (piece.isAlive) whitePieceCount++;
-    } else {
-      if (piece.isAlive) blackPieceCount++;
-    }
-  });
-  if (whitePieceCount > 0 && blackPieceCount > 0) return false;
-  return true;
-};
-
 module.exports = {
   updatePiece,
   updateBox,
@@ -111,6 +97,5 @@ module.exports = {
   generateRandomRoomId,
   getNextTurn,
   getAllMiddleBoxes,
-  isGameOver,
   setGameOver,
 };

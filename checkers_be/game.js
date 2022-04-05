@@ -12,8 +12,8 @@ const {
   isPieceInPiecesThatMustKill,
   generateRandomRoomId,
   getAllMiddleBoxes,
-  isGameOver,
   setGameOver,
+  getNextTurn,
 } = require("./utils/function");
 const {
   isRegularMove,
@@ -21,6 +21,7 @@ const {
   isKingMove,
   isKingKillMove,
   checkIfPiecesCanKill,
+  isGameOver,
 } = require("./utils/moveFunctions");
 const { calculateMove } = require("./utils/aiMoves/aiRegularMoves");
 
@@ -197,9 +198,10 @@ const makeMove = (
   middleBox = null,
   moveType = "NORMAL"
 ) => {
+  const { allBoxes, turn } = gameState;
   setNewStates(gameState, clickedPiece, fromBox, middleBox, box);
   moveDispatch(lobby, gameState, clickedPiece, fromBox, box, moveType);
-  const gameOver = isGameOver(gameState.allPiece);
+  const gameOver = isGameOver(allBoxes, getNextTurn(turn));
   setGameOver(gameOver, gameState);
 };
 
@@ -305,12 +307,12 @@ const confirmKingship = (gameState) => {
 };
 
 const computerMove = async (io, lobby, gameState, roomId) => {
-  const { turn, allBoxes } = gameState;
+  const { turn, allBoxes, gameOver } = gameState;
+  if (gameOver) return;
   const { gameType } = lobby;
   if (gameType !== "SINGLEPLAYER") return;
   if (turn !== pieceColors[1]) return;
   const aiBestMove = calculateMove(allBoxes, turn);
-  // console.log("aiBestMove", aiBestMove);
   if (aiBestMove.moveType === "REGULAR MOVE")
     await makeAIRegularMove(
       io,
@@ -325,6 +327,7 @@ const computerMove = async (io, lobby, gameState, roomId) => {
 };
 
 const makeAIRegularMove = async (io, lobby, gameState, roomId, box, toBox) => {
+  const { allBoxes, turn } = gameState;
   const pieceInBox = box.piece;
   pieceInBox.index = toBox.boxNumber;
   pieceInBox.leftDimension = toBox.leftDimension;
@@ -341,7 +344,7 @@ const makeAIRegularMove = async (io, lobby, gameState, roomId, box, toBox) => {
   confirmKingship(gameState);
   switchTurn(gameState);
   updatePiecesThatMustKill(lobby, gameState);
-  const gameOver = isGameOver(gameState.allPiece);
+  const gameOver = isGameOver(allBoxes, getNextTurn(turn));
   setGameOver(gameOver, gameState);
   gameState = await updateGameState(lobby.gameState, gameState);
   io.to(roomId).emit("gameState", gameState);

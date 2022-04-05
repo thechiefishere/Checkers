@@ -32,6 +32,6 @@ export const getWinnersColor = (gameState) => {
       if (piece.isAlive) blackPieceCount++;
     }
   });
-  if (whitePieceCount > 0 && blackPieceCount === 0) return pieceColors[0];
-  else if (whitePieceCount === 0 && blackPieceCount > 0) return pieceColors[1];
+  if (whitePieceCount > blackPieceCount) return pieceColors[0];
+  else return pieceColors[1];
 };

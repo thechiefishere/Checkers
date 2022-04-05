@@ -1,4 +1,4 @@
-const { boxColors } = require("../constants");
+const { boxColors, pieceDirections } = require("../constants");
 
 const possibleRegularMovesPositions = (allBoxes, box, direction) => {
   const possibleMoves = [];
@@ -144,7 +144,8 @@ const isValidAtEdge = (fromBoxNumber, toBoxNumber, boxDifference) => {
 
 const checkRegularMove = (toBoxNumber, fromBoxNumber, direction) => {
   let boxDifference = toBoxNumber - fromBoxNumber;
-  if (direction === "UP") boxDifference = fromBoxNumber - toBoxNumber;
+  if (direction === pieceDirections[0])
+    boxDifference = fromBoxNumber - toBoxNumber;
   if (boxDifference < 0) return false;
   if (!isValidAtEdge(toBoxNumber, fromBoxNumber, boxDifference)) return false;
   if (boxDifference === 9 || boxDifference === 11) return true;
@@ -371,6 +372,35 @@ const checkIfPiecesCanKill = (allBoxes, turn, checkSlant = false) => {
   return boxes.length > 0 ? boxes : null;
 };
 
+const checkIfPiecesCanMove = (allBoxes, turn) => {
+  for (let i = 0; i < allBoxes.length; i++) {
+    const box = allBoxes[i];
+    if (!box.isFilled) continue;
+    const piece = box.piece;
+    if (piece.pieceColor !== turn) continue;
+    if (piece.pieceType === "REGULAR") {
+      const regularMovesPosition = possibleRegularMovesPositions(
+        allBoxes,
+        box,
+        piece.pieceDirection
+      );
+      for (let i = 0; i < regularMovesPosition.length; i++) {
+        const aBox = regularMovesPosition[i];
+        const regularMove = isRegularMove(box, aBox, piece.pieceDirection);
+        if (regularMove) return true;
+      }
+    } else {
+      const kingMovesPosition = possibleKingMovesPositions(allBoxes, box);
+      for (let i = 0; i < kingMovesPosition.length; i++) {
+        const aBox = kingMovesPosition[i];
+        const kingMove = isKingMove(box, aBox, allBoxes);
+        if (kingMove) return true;
+      }
+    }
+  }
+  return false;
+};
+
 const getSlantKillPositions = (allBoxes, fromBox, toBox, middleBox, turn) => {
   let copyOfAllBoxes = JSON.parse(JSON.stringify(allBoxes));
   const boxDifference = Math.abs(toBox.boxNumber - fromBox.boxNumber);
@@ -394,13 +424,6 @@ const getSlantKillPositions = (allBoxes, fromBox, toBox, middleBox, turn) => {
       );
       if (pieceCanStillKill) slantKillPositions.push(box);
     }
-    // if (checkIfPiecesCanKill(copyOfAllBoxes, turn)) {
-    //   const pieceCanStillKill = getBoxesWithPieceThatCanKill(
-    //     copyOfAllBoxes,
-    //     turn
-    //   ).some((aBox) => aBox.boxNumber === box.boxNumber);
-    //   if (pieceCanStillKill) slantKillPositions.push(box);
-    // }
     copyOfAllBoxes[i].piece = null;
     copyOfAllBoxes[i].isFilled = false;
     if (i % 10 === 0 || i % 9 === 0) break;
@@ -442,6 +465,19 @@ const getBoxAddOn = (boxDifference) => {
   return boxDifference % 11 === 0 ? 11 : 9;
 };
 
+const isGameOver = (allBoxes, turn) => {
+  const moveIsPossible = pieceExistThatCanMoveOrKill(allBoxes, turn);
+  if (moveIsPossible) return false;
+  return true;
+};
+
+const pieceExistThatCanMoveOrKill = (allBoxes, turn) => {
+  const pieceCanMove = checkIfPiecesCanMove(allBoxes, turn);
+  const pieceCanKill = checkIfPiecesCanKill(allBoxes, turn);
+  if (pieceCanMove || pieceCanKill) return true;
+  return false;
+};
+
 module.exports = {
   isRegularMove,
   isRegularKillMove,
@@ -455,4 +491,5 @@ module.exports = {
   possibleRegularKillPositions,
   possibleKingMovesPositions,
   possibleKingKillPositions,
+  isGameOver,
 };

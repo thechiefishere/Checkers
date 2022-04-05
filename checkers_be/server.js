@@ -29,7 +29,7 @@ app.get("/", (req, res) => {
 
 io.on("connection", (socket) => {
   socket.on("disconnected", () => {
-    console.log("DISCONNECTED");
+    // console.log("DISCONNECTED");
     socket.emit("disconnect");
   });
   socket.on("multiplayer_newgame", async () => {
